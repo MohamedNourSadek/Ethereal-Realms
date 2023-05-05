@@ -34,7 +34,7 @@ void APlayfabManager::LoginWithCustomID()
 {
 	PlayFab::ClientModels::FLoginWithCustomIDRequest request;
 	
-	request.CustomId  =  FGenericPlatformMisc::GetHashedMacAddressString();
+	request.CustomId = FGenericPlatformMisc::GetHashedMacAddressString();
 	request.CreateAccount = true;
 	
 	clientAPI->LoginWithCustomID(
@@ -55,7 +55,6 @@ void APlayfabManager::OnError(const PlayFab::FPlayFabCppError& ErrorResult) cons
 {
 	UE_LOG(LogTemp, Error, TEXT("Something went wrong with your first API call.\nHere's some debug information:\n%s"), *ErrorResult.GenerateErrorReport());
 }
-
 #pragma endregion 
 
 
