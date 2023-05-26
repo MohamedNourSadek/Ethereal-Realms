@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PickableItem.h"
 #include "GameFramework/Character.h"
 #include "MyPlayerController.generated.h"
 
@@ -11,15 +12,16 @@ class ETHEREAL_REALMS_API AMyPlayerController : public ACharacter
 {
 	GENERATED_BODY()
 
-public:
-	AMyPlayerController();
+	APickableItem* GetNearestObject() const;	
 
+	UPROPERTY(EditAnywhere) float pickRad = 200;
 protected:
 	virtual void BeginPlay() override;
 
 public:	
+	AMyPlayerController();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	
 	UPROPERTY (VisibleAnywhere, BlueprintReadOnly) bool RecieveInput = true;
 };
