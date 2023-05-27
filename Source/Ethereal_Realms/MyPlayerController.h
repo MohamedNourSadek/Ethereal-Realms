@@ -22,6 +22,6 @@ public:
 	AMyPlayerController();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
 	UPROPERTY (VisibleAnywhere, BlueprintReadOnly) bool RecieveInput = true;
 };

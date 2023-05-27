@@ -3,48 +3,45 @@
 
 #include "MyPlayerController.h"
 
+#include "Ethereal_RealmsGameModeBase.h"
+#include "Inventory.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-// Sets default values
 AMyPlayerController::AMyPlayerController()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 }
-
-// Called when the game starts or when spawned
 void AMyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
-
-// Called every frame
 void AMyPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 	auto nearestObject = GetNearestObject();
-
+/*
 	if(nearestObject != nullptr)
 		UE_LOG(LogTemp, Warning, TEXT("Detected a near Item"))
 	else
 		UE_LOG(LogTemp, Display, TEXT("Nothing near you"));
+*/
+	
 }
-
-// Called to bind functionality to input
 void AMyPlayerController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	
 }
+
 
 APickableItem* AMyPlayerController::GetNearestObject() const
 {
 	TArray<FHitResult> HitArray;
-	FVector location = this->GetActorLocation();
-	TArray<AActor*> exceptionActors {GetOwner()};
+	const FVector location = this->GetActorLocation();
+	const TArray<AActor*> exceptionActors {GetOwner()};
 
 	UKismetSystemLibrary::SphereTraceMulti(
 		GetWorld(),
@@ -58,15 +55,15 @@ APickableItem* AMyPlayerController::GetNearestObject() const
 		HitArray,
 		true);
 
-	for(auto element : HitArray)
+	for(FHitResult& element : HitArray)
 	{
 		if(element.GetActor()->Tags.Contains("Pickable"))
 		{
+			Cast<AEthereal_RealmsGameModeBase>(GetWorld()->GetAuthGameMode())->myInventory->SetPickUIState(true);
 			return Cast<APickableItem>(element.GetActor());
 		}
 	}
 
+	Cast<AEthereal_RealmsGameModeBase>(GetWorld()->GetAuthGameMode())->myInventory->SetPickUIState(false);
 	return nullptr;
 }
-
-
