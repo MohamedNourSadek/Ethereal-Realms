@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "MyPlayerController.h"
 
+#include "MyPlayerController.h"
 #include "Ethereal_RealmsGameModeBase.h"
 #include "Inventory.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -35,8 +35,6 @@ void AMyPlayerController::SetupPlayerInputComponent(UInputComponent* PlayerInput
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
-
-
 APickableItem* AMyPlayerController::GetNearestObject() const
 {
 	TArray<FHitResult> HitArray;
@@ -66,4 +64,21 @@ APickableItem* AMyPlayerController::GetNearestObject() const
 
 	Cast<AEthereal_RealmsGameModeBase>(GetWorld()->GetAuthGameMode())->myInventory->SetPickUIState(false);
 	return nullptr;
+}
+
+void AMyPlayerController::AddItemToInventory(UInventoryItemData* item)
+{
+	if(inventoryItems.Contains(item) == false)
+	{
+		inventoryItems.Add(item);
+		UE_LOG(LogTemp, Display, TEXT("We have %d items in category"), inventoryItems.Num());
+	}
+}
+
+void AMyPlayerController::RemoveItemFromInventory(UInventoryItemData* item)
+{
+	if(inventoryItems.Contains(item) == true)
+		inventoryItems.Remove(item);
+
+	delete item;
 }

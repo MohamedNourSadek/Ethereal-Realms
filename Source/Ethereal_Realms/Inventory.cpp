@@ -2,13 +2,43 @@
 
 
 #include "Inventory.h"
-
 #include "Components/CanvasPanel.h"
 #include "Kismet/GameplayStatics.h"
 
 void UInventory::OnStart(UCanvasPanel* pressEPanel)
 {
 	PressEPanel = pressEPanel;
+}
+
+void UInventory::PickItem()
+{
+	UE_LOG(LogTemp, Display, TEXT("Pick Item"));
+	if(myPlayer != nullptr)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Player Exists"));
+
+		APickableItem* nearestObj = myPlayer->GetNearestObject();
+		
+		if(nearestObj != nullptr)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Near Object Exists"));
+
+			if(nearestObj->Tags.Contains("Cube"))
+			{
+				UInventoryItemData* Item = NewObject<UInventoryItemData>();
+				Item->ItemType = Cube;
+				
+				myPlayer->AddItemToInventory(Item);		
+			}
+
+			nearestObj->Destroy();
+		}
+	}
+	else
+	{
+		myPlayer = Cast<AMyPlayerController>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		PickItem();
+	}
 }
 
 void UInventory::SetInventoryState(UCanvasPanel* GamePlayPanel, UCanvasPanel* Inventory)

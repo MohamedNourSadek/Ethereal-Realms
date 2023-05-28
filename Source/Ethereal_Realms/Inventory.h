@@ -18,6 +18,7 @@ public:
 	GENERATED_BODY()
 
 	UFUNCTION(BlueprintCallable) void SetInventoryState(UCanvasPanel* GamePlayPanel, UCanvasPanel* Inventory);
+	UFUNCTION(BlueprintCallable) void PickItem();
 	UFUNCTION(BlueprintCallable) void OnStart(UCanvasPanel* pressEPanel);
 	void SetPickUIState(bool pressEPanel);
 
