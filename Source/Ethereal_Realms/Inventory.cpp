@@ -2,14 +2,20 @@
 
 
 #include "Inventory.h"
+
+#include <string>
+
 #include "Components/CanvasPanel.h"
 #include "Kismet/GameplayStatics.h"
 
-void UInventory::OnStart(UCanvasPanel* pressEPanel)
+void UInventory::OnStart(UCanvasPanel* pressEPanel, TArray<UInventoryUIItem*> items)
 {
 	PressEPanel = pressEPanel;
-}
+	inventoryUIItems = items;
 
+	for (UInventoryUIItem* item : items)
+		item->OnStart();
+}
 void UInventory::PickItem()
 {
 	UE_LOG(LogTemp, Display, TEXT("Pick Item"));
@@ -27,8 +33,12 @@ void UInventory::PickItem()
 			{
 				UInventoryItemData* Item = NewObject<UInventoryItemData>();
 				Item->ItemType = Cube;
+				const int itemsCount = myPlayer->AddItemToInventory(Item);
 				
-				myPlayer->AddItemToInventory(Item);		
+				inventoryUIItems[0]->myImage->SetBrushFromTexture(textures[0], true);
+				inventoryUIItems[0]->amountText->SetText(FText::FromString(FString::FromInt(itemsCount)));
+				inventoryUIItems[0]->itemButton->SetIsEnabled(true);
+				inventoryUIItems[0]->myType = InventoryItemType::Cube;
 			}
 
 			nearestObj->Destroy();
@@ -40,7 +50,22 @@ void UInventory::PickItem()
 		PickItem();
 	}
 }
+void UInventory::DropItem(UInventoryUIItem* item)
+{
+	int currentAmount = FCString::Atoi(*inventoryUIItems[0]->amountText->GetText().ToString());
 
+	if(currentAmount > 1)
+		inventoryUIItems[0]->amountText->SetText(FText::FromString(FString::FromInt(currentAmount-1)));
+	else
+	{
+		inventoryUIItems[0]->myImage->SetBrushFromTexture(nullptr, false);
+		inventoryUIItems[0]->amountText->SetText(FText::FromString(FString("")));
+		inventoryUIItems[0]->itemButton->SetIsEnabled(true);
+		//myPlayer->RemoveItemFromInventory();
+		if(item->myType == InventoryItemType::Cube)
+			GetWorld()->SpawnActor(cube,&myPlayer->GetTransform());
+	}
+}
 void UInventory::SetInventoryState(UCanvasPanel* GamePlayPanel, UCanvasPanel* Inventory)
 {
 	if(myPlayer != nullptr)
@@ -49,13 +74,15 @@ void UInventory::SetInventoryState(UCanvasPanel* GamePlayPanel, UCanvasPanel* In
 		{
 			GamePlayPanel->SetVisibility(ESlateVisibility::Hidden);
 			Inventory->SetVisibility(ESlateVisibility::Visible);
-			myPlayer->RecieveInput = false;
+			myPlayer->RecieveInput = false;   
+			UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetShowMouseCursor(true);
 		}
 		else
 		{
 			GamePlayPanel->SetVisibility(ESlateVisibility::Visible);
 			Inventory->SetVisibility(ESlateVisibility::Hidden);
 			myPlayer->RecieveInput = true;
+			UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetShowMouseCursor(false);
 		}
 	}
 	else
@@ -64,7 +91,6 @@ void UInventory::SetInventoryState(UCanvasPanel* GamePlayPanel, UCanvasPanel* In
 		SetInventoryState(GamePlayPanel, Inventory);
 	}
 }
-
 void UInventory::SetPickUIState(bool state)
 {
 	if(state)

@@ -7,7 +7,8 @@
 enum InventoryItemType
 {
 	Cube,
-	Sphere
+	Sphere,
+	Empty
 };
 
 class ETHEREAL_REALMS_API PublicStatics

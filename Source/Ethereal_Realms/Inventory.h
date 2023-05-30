@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InventoryItem.h"
+#include "InventoryUIItem.h"
 #include "MyPlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
@@ -19,10 +21,15 @@ public:
 
 	UFUNCTION(BlueprintCallable) void SetInventoryState(UCanvasPanel* GamePlayPanel, UCanvasPanel* Inventory);
 	UFUNCTION(BlueprintCallable) void PickItem();
-	UFUNCTION(BlueprintCallable) void OnStart(UCanvasPanel* pressEPanel);
+	UFUNCTION(BlueprintCallable) void OnStart(UCanvasPanel* pressEPanel, TArray<UInventoryUIItem*> items);
+
+	UPROPERTY(EditAnywhere) TSubclassOf<AActor> cube;
 	void SetPickUIState(bool pressEPanel);
-
+	void DropItem(UInventoryUIItem* item);
+	
 	AMyPlayerController* myPlayer = nullptr;
-
-	UPROPERTY(EditAnywhere) UCanvasPanel* PressEPanel;
+	UCanvasPanel* PressEPanel;
+	TArray<UInventoryUIItem*> inventoryUIItems;
+	
+	UPROPERTY(EditAnywhere) TArray<UTexture2D*> textures;
 };

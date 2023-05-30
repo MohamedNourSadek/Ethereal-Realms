@@ -24,8 +24,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	APickableItem* GetNearestObject() const;
-	void AddItemToInventory(UInventoryItemData* item);
-	void RemoveItemFromInventory(UInventoryItemData* item);
+	int AddItemToInventory(UInventoryItemData* item);
+	int RemoveItemFromInventory(UInventoryItemData* item);
 	UPROPERTY (VisibleAnywhere, BlueprintReadOnly) bool RecieveInput = true;
 
 private:

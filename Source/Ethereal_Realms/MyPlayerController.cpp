@@ -49,7 +49,7 @@ APickableItem* AMyPlayerController::GetNearestObject() const
 		UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_WorldDynamic),
 		false,
 		exceptionActors,
-		EDrawDebugTrace::ForOneFrame,
+		EDrawDebugTrace::None,
 		HitArray,
 		true);
 
@@ -66,19 +66,21 @@ APickableItem* AMyPlayerController::GetNearestObject() const
 	return nullptr;
 }
 
-void AMyPlayerController::AddItemToInventory(UInventoryItemData* item)
+int AMyPlayerController::AddItemToInventory(UInventoryItemData* item)
 {
 	if(inventoryItems.Contains(item) == false)
 	{
 		inventoryItems.Add(item);
-		UE_LOG(LogTemp, Display, TEXT("We have %d items in category"), inventoryItems.Num());
 	}
-}
 
-void AMyPlayerController::RemoveItemFromInventory(UInventoryItemData* item)
+	return inventoryItems.Num();
+}
+int AMyPlayerController::RemoveItemFromInventory(UInventoryItemData* item)
 {
 	if(inventoryItems.Contains(item) == true)
 		inventoryItems.Remove(item);
 
 	delete item;
+
+	return inventoryItems.Num();
 }

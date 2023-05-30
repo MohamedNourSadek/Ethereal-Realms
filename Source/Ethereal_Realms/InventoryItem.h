@@ -17,3 +17,4 @@ class ETHEREAL_REALMS_API UInventoryItem : public UImage
 public:
 	UPROPERTY(EditAnywhere) float testValue = 0.0;
 };
+ 
