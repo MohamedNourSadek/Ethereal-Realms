@@ -28,7 +28,7 @@ void AMyPlayerController::Tick(float DeltaTime)
 		UE_LOG(LogTemp, Warning, TEXT("Detected a near Item"))
 	else
 		UE_LOG(LogTemp, Display, TEXT("Nothing near you"));
-*/
+*/	
 	
 }
 void AMyPlayerController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
