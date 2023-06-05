@@ -3,13 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Inventory.h"
 
-/**
- * 
- */
-
-UInventory* playerInventory = nullptr;
 
 class ETHEREAL_REALMS_API Statics
 {
