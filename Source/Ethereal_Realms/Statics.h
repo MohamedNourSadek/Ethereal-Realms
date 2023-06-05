@@ -9,7 +9,7 @@
  * 
  */
 
-UInventory* playerInventory;
+UInventory* playerInventory = nullptr;
 
 class ETHEREAL_REALMS_API Statics
 {

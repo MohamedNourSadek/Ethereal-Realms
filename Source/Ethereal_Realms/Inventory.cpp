@@ -8,7 +8,7 @@
 #include "Components/CanvasPanel.h"
 #include "Kismet/GameplayStatics.h"
 
-extern UInventory* playerInventory;
+extern UInventory* playerInventory = nullptr;
 
 void UInventory::OnStart(UCanvasPanel* pressEPanel, UCanvasPanel* gameplayPanel, UCanvasPanel* inventoryPanel, TArray<UInventoryUIItem*> items)
 {
@@ -69,7 +69,7 @@ void UInventory::DropItem(UInventoryUIItem* item)
 		InventoryUIItems[0]->amountText->SetText(FText::FromString(FString("")));
 		InventoryUIItems[0]->itemButton->SetIsEnabled(false);
 	}
-	UE_LOG(LogTemp, Display, TEXT("M"));
+
 	MyPlayer->RemoveItemFromInventory(item->myType);
 	if(item->myType == InventoryItemType::Cube)
 	{
@@ -106,8 +106,11 @@ void UInventory::ToggleInventoryState()
 }
 void UInventory::SetPickUIState(bool state) const
 {
-	if(state)
-		PressEPanel->SetVisibility(ESlateVisibility::Visible);
-	else
-		PressEPanel->SetVisibility(ESlateVisibility::Hidden);
+	if(PressEPanel != nullptr)
+	{
+		if(state)
+			PressEPanel->SetVisibility(ESlateVisibility::Visible);
+		else
+			PressEPanel->SetVisibility(ESlateVisibility::Hidden);
+	}
 }

@@ -7,7 +7,7 @@
 #include "Inventory.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-extern UInventory* playerInventory;
+extern UInventory* playerInventory = nullptr;
 
 AMyPlayerController::AMyPlayerController()
 {
@@ -18,20 +18,23 @@ AMyPlayerController::AMyPlayerController()
 void AMyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+
+
 }
 void AMyPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	auto nearestObject = GetNearestObject();
-/*
-	if(nearestObject != nullptr)
-		UE_LOG(LogTemp, Warning, TEXT("Detected a near Item"))
-	else
-		UE_LOG(LogTemp, Display, TEXT("Nothing near you"));
-*/	
-	
+	const APickableItem* nearestObject = GetNearestObject();
+
+	if(playerInventory != nullptr)
+	{
+		if(nearestObject != nullptr )
+			playerInventory->SetPickUIState(true);
+		else
+			playerInventory->SetPickUIState(false);
+	}
 }
 void AMyPlayerController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -62,17 +65,9 @@ APickableItem* AMyPlayerController::GetNearestObject() const
 	for(FHitResult& element : HitArray)
 	{
 		if(element.GetActor()->Tags.Contains("Pickable"))
-		{
-			if(playerInventory != nullptr)
-				playerInventory->SetPickUIState(true);
-			
 			return Cast<APickableItem>(element.GetActor());
-		}
 	}
 
-	if(playerInventory != nullptr)
-		playerInventory->SetPickUIState(false);
-	
 	return nullptr;
 }
 
