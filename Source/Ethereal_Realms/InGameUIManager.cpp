@@ -3,6 +3,10 @@
 
 #include "InGameUIManager.h"
 
+#include "Inventory.h"
+
+extern UInventory* playerInventory;
+
 AInGameUIManager::AInGameUIManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -12,7 +16,6 @@ AInGameUIManager::AInGameUIManager()
 void AInGameUIManager::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void AInGameUIManager::Tick(float DeltaTime)

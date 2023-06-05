@@ -2,8 +2,9 @@
 
 
 #include "InventoryUIItem.h"
-
 #include "Ethereal_RealmsGameModeBase.h"
+
+extern UInventory* playerInventory;
 
 void UInventoryUIItem::OnStart()
 {
@@ -15,5 +16,5 @@ void UInventoryUIItem::OnStart()
 
 void UInventoryUIItem::OnButtonClicked()
 {
-	Cast<AEthereal_RealmsGameModeBase>(GetWorld()->GetAuthGameMode())->myInventory->DropItem(this);
+	playerInventory->DropItem(this);
 }

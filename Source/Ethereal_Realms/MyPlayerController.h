@@ -25,9 +25,11 @@ public:
 
 	APickableItem* GetNearestObject() const;
 	int AddItemToInventory(UInventoryItemData* item);
-	int RemoveItemFromInventory(UInventoryItemData* item);
+	int RemoveItemFromInventory(InventoryItemType type);
+	void PickInputRecieved();
+	void InventoryInputRecieved();
 	UPROPERTY (VisibleAnywhere, BlueprintReadOnly) bool RecieveInput = true;
-
+	
 private:
 	UPROPERTY(EditAnywhere) TArray<UInventoryItemData*> inventoryItems;
 };

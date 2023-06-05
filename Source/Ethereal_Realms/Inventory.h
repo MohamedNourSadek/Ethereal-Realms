@@ -3,33 +3,30 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InventoryItem.h"
 #include "InventoryUIItem.h"
 #include "MyPlayerController.h"
 #include "Blueprint/UserWidget.h"
-#include "Components/TextBlock.h"
 #include "Inventory.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class ETHEREAL_REALMS_API UInventory : public UUserWidget
 {
 public:
 	GENERATED_BODY()
 
-	UFUNCTION(BlueprintCallable) void SetInventoryState(UCanvasPanel* GamePlayPanel, UCanvasPanel* Inventory);
-	UFUNCTION(BlueprintCallable) void PickItem();
-	UFUNCTION(BlueprintCallable) void OnStart(UCanvasPanel* pressEPanel, TArray<UInventoryUIItem*> items);
+	UFUNCTION(BlueprintCallable) void OnStart(UCanvasPanel* PressEPanel, UCanvasPanel* GamePlayPanel, UCanvasPanel* InventoryPanel,TArray<UInventoryUIItem*> items);
+	void ToggleInventoryState();
+	void PickItem();
 
 	UPROPERTY(EditAnywhere) TSubclassOf<AActor> cube;
-	void SetPickUIState(bool pressEPanel);
+	void SetPickUIState(bool pressEPanel) const;
 	void DropItem(UInventoryUIItem* item);
 	
-	AMyPlayerController* myPlayer = nullptr;
-	UCanvasPanel* PressEPanel;
-	TArray<UInventoryUIItem*> inventoryUIItems;
+	AMyPlayerController* MyPlayer = nullptr;
+	UCanvasPanel* PressEPanel = nullptr;
+	UCanvasPanel* GameplayPanel= nullptr;
+	UCanvasPanel* InventoryPanel= nullptr;
+	TArray<UInventoryUIItem*> InventoryUIItems;
 	
 	UPROPERTY(EditAnywhere) TArray<UTexture2D*> textures;
 };

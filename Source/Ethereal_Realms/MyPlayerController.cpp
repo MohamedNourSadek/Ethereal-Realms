@@ -7,6 +7,8 @@
 #include "Inventory.h"
 #include "Kismet/KismetSystemLibrary.h"
 
+extern UInventory* playerInventory;
+
 AMyPlayerController::AMyPlayerController()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -34,7 +36,11 @@ void AMyPlayerController::Tick(float DeltaTime)
 void AMyPlayerController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	PlayerInputComponent->BindAction("Pick", IE_Pressed, this, &AMyPlayerController::PickInputRecieved);
+	PlayerInputComponent->BindAction("Inventory", IE_Pressed, this, &AMyPlayerController::InventoryInputRecieved);
 }
+
 APickableItem* AMyPlayerController::GetNearestObject() const
 {
 	TArray<FHitResult> HitArray;
@@ -57,12 +63,16 @@ APickableItem* AMyPlayerController::GetNearestObject() const
 	{
 		if(element.GetActor()->Tags.Contains("Pickable"))
 		{
-			Cast<AEthereal_RealmsGameModeBase>(GetWorld()->GetAuthGameMode())->myInventory->SetPickUIState(true);
+			if(playerInventory != nullptr)
+				playerInventory->SetPickUIState(true);
+			
 			return Cast<APickableItem>(element.GetActor());
 		}
 	}
 
-	Cast<AEthereal_RealmsGameModeBase>(GetWorld()->GetAuthGameMode())->myInventory->SetPickUIState(false);
+	if(playerInventory != nullptr)
+		playerInventory->SetPickUIState(false);
+	
 	return nullptr;
 }
 
@@ -75,12 +85,25 @@ int AMyPlayerController::AddItemToInventory(UInventoryItemData* item)
 
 	return inventoryItems.Num();
 }
-int AMyPlayerController::RemoveItemFromInventory(UInventoryItemData* item)
+int AMyPlayerController::RemoveItemFromInventory(InventoryItemType type)
 {
-	if(inventoryItems.Contains(item) == true)
+	UInventoryItemData* item = nullptr;
+	
+	for(int i = 0; i < inventoryItems.Num(); i++)
+		if(inventoryItems[i]->ItemType == type)
+			item = inventoryItems[i];
+
+	if(item != nullptr)
 		inventoryItems.Remove(item);
 
-	delete item;
-
 	return inventoryItems.Num();
+}
+void AMyPlayerController::PickInputRecieved()
+{
+	playerInventory->PickItem();
+}
+
+void AMyPlayerController::InventoryInputRecieved()
+{
+	playerInventory->ToggleInventoryState();
 }
