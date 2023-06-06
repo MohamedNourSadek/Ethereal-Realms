@@ -25,6 +25,7 @@ public:
 	UPROPERTY(EditAnywhere) UImage* myImage = nullptr;
 	UPROPERTY(EditAnywhere) UTextBlock* amountText = nullptr;
 	UPROPERTY(EditAnywhere) UButton* itemButton = nullptr;
+	bool isUsed = false;
 	InventoryItemType myType = InventoryItemType::Empty;
 };
  

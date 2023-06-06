@@ -21,12 +21,14 @@ public:
 	UPROPERTY(EditAnywhere) TSubclassOf<AActor> cube;
 	void SetPickUIState(bool pressEPanel) const;
 	void DropItem(UInventoryUIItem* item);
+	int GetSlot(InventoryItemType type);
+	UTexture2D* GetTexture(InventoryItemType type);
 	
 	AMyPlayerController* MyPlayer = nullptr;
 	UCanvasPanel* PressEPanel = nullptr;
 	UCanvasPanel* GameplayPanel= nullptr;
 	UCanvasPanel* InventoryPanel= nullptr;
-	TArray<UInventoryUIItem*> InventoryUIItems;
+	TArray<UInventoryUIItem*> InventoryUIItems; 
 	
 	UPROPERTY(EditAnywhere) TArray<UTexture2D*> textures;
 };
