@@ -13,8 +13,5 @@ UCLASS()
 class ETHEREAL_REALMS_API UInventoryItem : public UImage
 {
 	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditAnywhere) float testValue = 0.0;
 };
  

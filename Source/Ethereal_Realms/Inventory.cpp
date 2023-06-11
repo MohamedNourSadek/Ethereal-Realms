@@ -2,9 +2,6 @@
 
 
 #include "Inventory.h"
-
-#include <string>
-
 #include "Components/CanvasPanel.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -22,33 +19,16 @@ void UInventory::OnStart(UCanvasPanel* pressEPanel, UCanvasPanel* gameplayPanel,
 	for (UInventoryUIItem* item : items)
 		item->OnStart();
 }
+
 void UInventory::PickItem()
 {
-	UE_LOG(LogTemp, Display, TEXT("Pick Item"));
-	
 	if(MyPlayer != nullptr)
 	{
 		APickableItem* nearestObj = MyPlayer->GetNearestObject();
 		
 		if(nearestObj != nullptr)
 		{
-			UInventoryItemData* Item = NewObject<UInventoryItemData>();
-
-			
-			if(nearestObj->Tags.Contains("Cube"))
-				Item->ItemType = InventoryItemType::Cube;
-			else if(nearestObj->Tags.Contains("Sword"))
-				Item->ItemType = InventoryItemType::Sword;
-
-			int unUsedSlot = GetSlot(Item->ItemType);
-			const int itemsCount = MyPlayer->AddItemToInventory(Item);
-			
-			InventoryUIItems[unUsedSlot]->myImage->SetBrushFromTexture(GetTexture(Item->ItemType), true);
-			InventoryUIItems[unUsedSlot]->amountText->SetText(FText::FromString(FString::FromInt(itemsCount)));
-			InventoryUIItems[unUsedSlot]->itemButton->SetIsEnabled(true);
-			InventoryUIItems[unUsedSlot]->myType = Item->ItemType;
-			InventoryUIItems[unUsedSlot]->isUsed = true;
-
+			StoreItemInUI(nearestObj);
 			nearestObj->Destroy();
 		}
 	}
@@ -58,29 +38,37 @@ void UInventory::PickItem()
 		PickItem();
 	}
 }
-void UInventory::DropItem(UInventoryUIItem* item)
+void UInventory::DropItem(InventoryItemType itemType)
 {
-	int currentAmount = FCString::Atoi(*InventoryUIItems[0]->amountText->GetText().ToString());
+	const int mySlot = GetSlot(itemType);
+	const int currentAmount = FCString::Atoi(*InventoryUIItems[mySlot]->amountText->GetText().ToString());
 
 	if(currentAmount > 1)
-		InventoryUIItems[0]->amountText->SetText(FText::FromString(FString::FromInt(currentAmount-1)));
+	{
+		InventoryUIItems[mySlot]->amountText->SetText(FText::FromString(FString::FromInt(currentAmount-1)));
+	}
 	else if(currentAmount == 1)
 	{
-		InventoryUIItems[0]->myImage->SetBrushFromTexture(nullptr, false);
-		InventoryUIItems[0]->amountText->SetText(FText::FromString(FString("")));
-		InventoryUIItems[0]->itemButton->SetIsEnabled(false);
-		InventoryUIItems[0]->isUsed = false;
-		InventoryUIItems[0]->myType =  InventoryItemType::Empty;
+		InventoryUIItems[mySlot]->myImage->SetBrushFromTexture(nullptr, false);
+		InventoryUIItems[mySlot]->amountText->SetText(FText::FromString(FString("")));
+		InventoryUIItems[mySlot]->itemButton->SetIsEnabled(false);
+		InventoryUIItems[mySlot]->isUsed = false;
+		InventoryUIItems[mySlot]->myType =  InventoryItemType::Empty;
+
+		
 	}
 
-	MyPlayer->RemoveItemFromInventory(item->myType);
-	if(item->myType == InventoryItemType::Cube)
-	{
-		FVector spawnLocaiton = MyPlayer->GetActorLocation() + (100*MyPlayer->GetActorForwardVector());
-		FRotator spawnRotation = MyPlayer->GetActorRotation();
-		
+	MyPlayer->RemoveItemDataFromInventory(itemType);
+	
+	FVector spawnLocaiton = MyPlayer->GetActorLocation() + (100*MyPlayer->GetActorForwardVector());
+	FRotator spawnRotation = MyPlayer->GetActorRotation();
+
+	
+	if(itemType == InventoryItemType::Cube)
 		GetWorld()->SpawnActor(cube, &spawnLocaiton, &spawnRotation);
-	}
+	else if(itemType == InventoryItemType::Sword)
+		GetWorld()->SpawnActor(sword, &spawnLocaiton, &spawnRotation);
+
 }
 void UInventory::ToggleInventoryState()
 {
@@ -117,6 +105,25 @@ void UInventory::SetPickUIState(bool state) const
 			PressEPanel->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
+void UInventory::StoreItemInUI(APickableItem* itemToStore)
+{
+	InventoryItemType itemType = InventoryItemType::Empty;
+			
+	if(itemToStore->Tags.Contains("Cube"))
+		itemType = InventoryItemType::Cube;
+	else if(itemToStore->Tags.Contains("Sword"))
+		itemType = InventoryItemType::Sword;
+
+	int unUsedSlot = GetSlot(itemType);
+	const int itemsCount = MyPlayer->AddItemDataToInventory(itemType);
+			
+	InventoryUIItems[unUsedSlot]->myImage->SetBrushFromTexture(GetTexture(itemType), true);
+	InventoryUIItems[unUsedSlot]->amountText->SetText(FText::FromString(FString::FromInt(itemsCount)));
+	InventoryUIItems[unUsedSlot]->itemButton->SetIsEnabled(true);
+	InventoryUIItems[unUsedSlot]->myType = itemType;
+	InventoryUIItems[unUsedSlot]->isUsed = true;
+}
+
 int UInventory::GetSlot(InventoryItemType type)
 {
 	int alreadyExists = -1;

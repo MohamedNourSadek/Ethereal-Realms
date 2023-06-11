@@ -16,5 +16,5 @@ void UInventoryUIItem::OnStart()
 
 void UInventoryUIItem::OnButtonClicked()
 {
-	playerInventory->DropItem(this);
+	playerInventory->DropItem(myType);
 }

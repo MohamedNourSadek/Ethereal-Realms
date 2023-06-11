@@ -1,31 +1,41 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+#pragma once
 
 #include "MyPlayerController.h"
-#include "Ethereal_RealmsGameModeBase.h"
 #include "Inventory.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 extern UInventory* playerInventory = nullptr;
 
+#pragma region Unreal Delegates
 AMyPlayerController::AMyPlayerController()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 void AMyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
-
-
 }
 void AMyPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	UpdateUI();
+}
+void AMyPlayerController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	PlayerInputComponent->BindAction("Pick", IE_Pressed, this, &AMyPlayerController::PickInputRecieved);
+	PlayerInputComponent->BindAction("Inventory", IE_Pressed, this, &AMyPlayerController::InventoryInputRecieved);
+}
+#pragma endregion
+
+
+#pragma region Functions 
+void AMyPlayerController::UpdateUI() const
+{
 	const APickableItem* nearestObject = GetNearestObject();
 
 	if(playerInventory != nullptr)
@@ -36,14 +46,6 @@ void AMyPlayerController::Tick(float DeltaTime)
 			playerInventory->SetPickUIState(false);
 	}
 }
-void AMyPlayerController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	PlayerInputComponent->BindAction("Pick", IE_Pressed, this, &AMyPlayerController::PickInputRecieved);
-	PlayerInputComponent->BindAction("Inventory", IE_Pressed, this, &AMyPlayerController::InventoryInputRecieved);
-}
-
 APickableItem* AMyPlayerController::GetNearestObject() const
 {
 	TArray<FHitResult> HitArray;
@@ -54,7 +56,7 @@ APickableItem* AMyPlayerController::GetNearestObject() const
 		GetWorld(),
 		location,
 		location,
-		pickRad,
+		pickRange,
 		UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_WorldDynamic),
 		false,
 		exceptionActors,
@@ -70,34 +72,66 @@ APickableItem* AMyPlayerController::GetNearestObject() const
 
 	return nullptr;
 }
-
-int AMyPlayerController::AddItemToInventory(UInventoryItemData* item)
+int AMyPlayerController::AddItemDataToInventory(InventoryItemType itemType)
 {
-	if(inventoryItems.Contains(item) == false)
+	UInventoryItemData* myItem = nullptr;
+	
+	for(const auto &item : inventoryItems)
 	{
-		inventoryItems.Add(item);
+		if(item.Key->ItemType == itemType)
+			myItem = item.Key;
 	}
 
-	return inventoryItems.Num();
+	if(myItem != nullptr)
+	{
+		inventoryItems[myItem] += 1;
+		return inventoryItems[myItem];
+	}
+	else
+	{
+		UInventoryItemData* newItem = NewObject<UInventoryItemData>();
+		newItem->ItemType = itemType;
+		inventoryItems.Add(newItem, 1);
+
+		return 1;
+	}
+
 }
-int AMyPlayerController::RemoveItemFromInventory(InventoryItemType type)
+int AMyPlayerController::RemoveItemDataFromInventory(InventoryItemType itemType)
 {
-	UInventoryItemData* item = nullptr;
-	
-	for(int i = 0; i < inventoryItems.Num(); i++)
-		if(inventoryItems[i]->ItemType == type)
-			item = inventoryItems[i];
+	UInventoryItemData* myItem = nullptr;
 
-	if(item != nullptr)
-		inventoryItems.Remove(item);
+	for(const auto &item : inventoryItems)
+	{
+		if(item.Key->ItemType == itemType)
+			myItem = item.Key;
+	}
 
-	return inventoryItems.Num();
+	if(myItem != nullptr)
+	{
+		if(inventoryItems[myItem] > 1)
+		{
+			inventoryItems[myItem] -= 1;
+			return inventoryItems[myItem]; 
+		}
+		else
+		{
+			inventoryItems.Remove(myItem);
+			return 0;
+		}
+	}
+	else
+	{
+		return 0;
+	}
 }
+#pragma endregion
+
+#pragma 
 void AMyPlayerController::PickInputRecieved()
 {
 	playerInventory->PickItem();
 }
-
 void AMyPlayerController::InventoryInputRecieved()
 {
 	playerInventory->ToggleInventoryState();

@@ -28,5 +28,4 @@ public:
 	void LoginWithCustomID();
 private:
 	PlayFabClientPtr clientAPI = nullptr;
-
 };

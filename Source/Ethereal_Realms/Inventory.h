@@ -7,7 +7,6 @@
 #include "MyPlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "Inventory.generated.h"
-
 UCLASS()
 class ETHEREAL_REALMS_API UInventory : public UUserWidget
 {
@@ -18,17 +17,23 @@ public:
 	void ToggleInventoryState();
 	void PickItem();
 
+#pragma region Functions
 	UPROPERTY(EditAnywhere) TSubclassOf<AActor> cube;
+	UPROPERTY(EditAnywhere) TSubclassOf<AActor> sword;
 	void SetPickUIState(bool pressEPanel) const;
-	void DropItem(UInventoryUIItem* item);
+	void DropItem(InventoryItemType itemType);
+	void StoreItemInUI(APickableItem* objectToStore);
 	int GetSlot(InventoryItemType type);
 	UTexture2D* GetTexture(InventoryItemType type);
-	
+#pragma endregion
+
+#pragma region Variables
+	UPROPERTY(EditAnywhere) TArray<UTexture2D*> textures;
 	AMyPlayerController* MyPlayer = nullptr;
 	UCanvasPanel* PressEPanel = nullptr;
 	UCanvasPanel* GameplayPanel= nullptr;
 	UCanvasPanel* InventoryPanel= nullptr;
-	TArray<UInventoryUIItem*> InventoryUIItems; 
+	TArray<UInventoryUIItem*> InventoryUIItems;
+#pragma endregion
 	
-	UPROPERTY(EditAnywhere) TArray<UTexture2D*> textures;
 };

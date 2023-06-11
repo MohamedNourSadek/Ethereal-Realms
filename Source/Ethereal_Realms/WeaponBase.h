@@ -6,9 +6,6 @@
 #include "PickableItem.h"
 #include "WeaponBase.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class ETHEREAL_REALMS_API AWeaponBase : public APickableItem
 {

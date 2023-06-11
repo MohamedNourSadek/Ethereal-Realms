@@ -19,13 +19,17 @@ class ETHEREAL_REALMS_API UInventoryUIItem : public UCanvasPanel
 	GENERATED_BODY()
 	
 public:
-	void OnStart();
+#pragma region Functions
 	UFUNCTION(BlueprintCallable) void OnButtonClicked();
-	
+	void OnStart();
+#pragma endregion 
+
+#pragma region References
 	UPROPERTY(EditAnywhere) UImage* myImage = nullptr;
 	UPROPERTY(EditAnywhere) UTextBlock* amountText = nullptr;
 	UPROPERTY(EditAnywhere) UButton* itemButton = nullptr;
-	bool isUsed = false;
+	UPROPERTY(EditAnywhere) bool isUsed = false;
 	InventoryItemType myType = InventoryItemType::Empty;
+#pragma endregion
 };
  

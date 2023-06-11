@@ -8,29 +8,47 @@
 #include "InventoryItemData.h"
 #include "MyPlayerController.generated.h"
 
+
+
+
 UCLASS()
 class ETHEREAL_REALMS_API AMyPlayerController : public ACharacter
 {
 	GENERATED_BODY()
 
 
-	UPROPERTY(EditAnywhere) float pickRad = 200;
 protected:
 	virtual void BeginPlay() override;
 
 public:	
+
 	AMyPlayerController();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+#pragma region Public Functions
 	APickableItem* GetNearestObject() const;
-	int AddItemToInventory(UInventoryItemData* item);
-	int RemoveItemFromInventory(InventoryItemType type);
-	void PickInputRecieved();
-	void InventoryInputRecieved();
+	int AddItemDataToInventory(InventoryItemType itemType);
+	int RemoveItemDataFromInventory(InventoryItemType itemType);
+#pragma endregion 
+
+#pragma region Private Functions
+	void UpdateUI() const;
+#pragma endregion 
+
+#pragma region Exposed Variables
+	UPROPERTY(EditAnywhere) float pickRange = 200;
 	UPROPERTY (VisibleAnywhere, BlueprintReadOnly) bool RecieveInput = true;
-	
-private:
-	UPROPERTY(EditAnywhere) TArray<UInventoryItemData*> inventoryItems;
+#pragma endregion
+
+#pragma region Private Variables
+	TMap<UInventoryItemData*, int> inventoryItems;
+#pragma endregion 
+
+
+#pragma region Input Callbacks
+	void InventoryInputRecieved();
+	void PickInputRecieved();
+#pragma endregion 
 };
 
