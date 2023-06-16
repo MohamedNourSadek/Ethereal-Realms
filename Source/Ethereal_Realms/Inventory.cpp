@@ -2,34 +2,61 @@
 
 
 #include "Inventory.h"
+
+#include "WeaponBase.h"
 #include "Components/CanvasPanel.h"
 #include "Kismet/GameplayStatics.h"
 
 extern UInventory* playerInventory = nullptr;
 
-void UInventory::OnStart(UCanvasPanel* pressEPanel, UCanvasPanel* gameplayPanel, UCanvasPanel* inventoryPanel, TArray<UInventoryUIItem*> items)
+void UInventory::OnStart(UCanvasPanel* dropGPanel, UCanvasPanel* pressEPanel, UCanvasPanel* pressRPanel, UCanvasPanel* gameplayPanel, UCanvasPanel* inventoryPanel, TArray<UInventoryUIItem*> items)
 {
 	playerInventory = this;
 	
 	PressEPanel = pressEPanel;
+	PressRPanel = pressRPanel;
+	DropGPanel = dropGPanel;
 	GameplayPanel = gameplayPanel;
 	InventoryPanel = inventoryPanel;
 	InventoryUIItems = items;
 
 	for (UInventoryUIItem* item : items)
 		item->OnStart();
+
+	MyPlayer = Cast<AMyPlayerController>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
 
+void UInventory::StoreItem()
+{
+	if(MyPlayer != nullptr)
+	{
+		APickableItem* nearestObj = MyPlayer->GetNearestObject();
+
+		if(nearestObj != nullptr)
+		{
+			StoreItemInUI(nearestObj);
+			nearestObj->Destroy();
+		}
+	}
+	else
+	{
+		MyPlayer = Cast<AMyPlayerController>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		StoreItem();
+	}
+}
 void UInventory::PickItem()
 {
 	if(MyPlayer != nullptr)
 	{
 		APickableItem* nearestObj = MyPlayer->GetNearestObject();
-		
+
 		if(nearestObj != nullptr)
 		{
-			StoreItemInUI(nearestObj);
-			nearestObj->Destroy();
+			nearestObj->FindComponentByClass<UStaticMeshComponent>()->SetSimulatePhysics(false);
+			nearestObj->FindComponentByClass<UStaticMeshComponent>()->SetCollisionProfileName("NoCollision", true);
+			Cast<APickableItem>(nearestObj)->isPicked = true;
+			nearestObj->AttachToComponent(Cast<ACharacter>(MyPlayer)->GetMesh() ,FAttachmentTransformRules::SnapToTargetNotIncludingScale,"hand_lSocket");
+			MyPlayer->itemInHand = nearestObj;
 		}
 	}
 	else
@@ -54,8 +81,6 @@ void UInventory::DropItem(InventoryItemType itemType)
 		InventoryUIItems[mySlot]->itemButton->SetIsEnabled(false);
 		InventoryUIItems[mySlot]->isUsed = false;
 		InventoryUIItems[mySlot]->myType =  InventoryItemType::Empty;
-
-		
 	}
 
 	MyPlayer->RemoveItemDataFromInventory(itemType);
@@ -103,6 +128,14 @@ void UInventory::SetPickUIState(bool state) const
 			PressEPanel->SetVisibility(ESlateVisibility::Visible);
 		else
 			PressEPanel->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	if(PressRPanel != nullptr)
+	{
+		if(state)
+			PressRPanel->SetVisibility(ESlateVisibility::Visible);
+		else
+			PressRPanel->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 void UInventory::StoreItemInUI(APickableItem* itemToStore)

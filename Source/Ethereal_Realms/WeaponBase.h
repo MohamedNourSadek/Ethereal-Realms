@@ -10,5 +10,4 @@ UCLASS()
 class ETHEREAL_REALMS_API AWeaponBase : public APickableItem
 {
 	GENERATED_BODY()
-	
 };

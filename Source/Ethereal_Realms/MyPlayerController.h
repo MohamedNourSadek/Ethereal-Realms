@@ -39,6 +39,7 @@ public:
 #pragma region Exposed Variables
 	UPROPERTY(EditAnywhere) float pickRange = 200;
 	UPROPERTY (VisibleAnywhere, BlueprintReadOnly) bool RecieveInput = true;
+	UPROPERTY(EditAnywhere) APickableItem* itemInHand = nullptr;
 #pragma endregion
 
 #pragma region Private Variables
@@ -49,6 +50,8 @@ public:
 #pragma region Input Callbacks
 	void InventoryInputRecieved();
 	void PickInputRecieved();
+	void StoreInputRecieved();
+	void DropInputRecieved();
 #pragma endregion 
 };
 

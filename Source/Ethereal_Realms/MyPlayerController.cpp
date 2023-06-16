@@ -27,8 +27,10 @@ void AMyPlayerController::SetupPlayerInputComponent(UInputComponent* PlayerInput
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	PlayerInputComponent->BindAction("Store", IE_Pressed, this, &AMyPlayerController::StoreInputRecieved);
 	PlayerInputComponent->BindAction("Pick", IE_Pressed, this, &AMyPlayerController::PickInputRecieved);
 	PlayerInputComponent->BindAction("Inventory", IE_Pressed, this, &AMyPlayerController::InventoryInputRecieved);
+	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &AMyPlayerController::DropInputRecieved);
 }
 #pragma endregion
 
@@ -67,7 +69,12 @@ APickableItem* AMyPlayerController::GetNearestObject() const
 	for(FHitResult& element : HitArray)
 	{
 		if(element.GetActor()->Tags.Contains("Pickable"))
-			return Cast<APickableItem>(element.GetActor());
+		{
+			APickableItem* item = Cast<APickableItem>(element.GetActor());
+			
+			if(item->isPicked == false && itemInHand == nullptr)
+				return item;
+		}
 	}
 
 	return nullptr;
@@ -132,7 +139,22 @@ void AMyPlayerController::PickInputRecieved()
 {
 	playerInventory->PickItem();
 }
+void AMyPlayerController::StoreInputRecieved()
+{
+	playerInventory->StoreItem();
+}
 void AMyPlayerController::InventoryInputRecieved()
 {
 	playerInventory->ToggleInventoryState();
+}
+void AMyPlayerController::DropInputRecieved()
+{
+	if(itemInHand != nullptr)
+	{
+		itemInHand->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		itemInHand->isPicked = false;
+		itemInHand->FindComponentByClass<UStaticMeshComponent>()->SetSimulatePhysics(true);
+		itemInHand->FindComponentByClass<UStaticMeshComponent>()->SetCollisionProfileName("PhysicsActor", true);
+		itemInHand = nullptr;
+	}
 }

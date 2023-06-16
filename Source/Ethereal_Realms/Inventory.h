@@ -13,7 +13,7 @@ class ETHEREAL_REALMS_API UInventory : public UUserWidget
 public:
 	GENERATED_BODY()
 
-	UFUNCTION(BlueprintCallable) void OnStart(UCanvasPanel* PressEPanel, UCanvasPanel* GamePlayPanel, UCanvasPanel* InventoryPanel,TArray<UInventoryUIItem*> items);
+	UFUNCTION(BlueprintCallable) void OnStart(UCanvasPanel* dropGPanel, UCanvasPanel* pressEPanel, UCanvasPanel* pressRPanel, UCanvasPanel* GamePlayPanel, UCanvasPanel* InventoryPanel,TArray<UInventoryUIItem*> items);
 	void ToggleInventoryState();
 	void PickItem();
 
@@ -22,6 +22,7 @@ public:
 	UPROPERTY(EditAnywhere) TSubclassOf<AActor> sword;
 	void SetPickUIState(bool pressEPanel) const;
 	void DropItem(InventoryItemType itemType);
+	void StoreItem();
 	void StoreItemInUI(APickableItem* objectToStore);
 	int GetSlot(InventoryItemType type);
 	UTexture2D* GetTexture(InventoryItemType type);
@@ -31,6 +32,8 @@ public:
 	UPROPERTY(EditAnywhere) TArray<UTexture2D*> textures;
 	AMyPlayerController* MyPlayer = nullptr;
 	UCanvasPanel* PressEPanel = nullptr;
+	UCanvasPanel* PressRPanel = nullptr;
+	UCanvasPanel* DropGPanel = nullptr;
 	UCanvasPanel* GameplayPanel= nullptr;
 	UCanvasPanel* InventoryPanel= nullptr;
 	TArray<UInventoryUIItem*> InventoryUIItems;

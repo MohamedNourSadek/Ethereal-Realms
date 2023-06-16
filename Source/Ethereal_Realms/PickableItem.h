@@ -16,5 +16,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 public:	
+	bool isPicked = false;
 	virtual void Tick(float DeltaTime) override;
 };
