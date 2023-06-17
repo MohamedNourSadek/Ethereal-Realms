@@ -6,6 +6,7 @@
 #include "PickableItem.h"
 #include "GameFramework/Character.h"
 #include "InventoryItemData.h"
+#include "PlayerData.h"
 #include "MyPlayerController.generated.h"
 
 
@@ -30,6 +31,7 @@ public:
 	APickableItem* GetNearestObject() const;
 	int AddItemDataToInventory(InventoryItemType itemType);
 	int RemoveItemDataFromInventory(InventoryItemType itemType);
+	void AttackWithWeaponInHand();
 #pragma endregion 
 
 #pragma region Private Functions
@@ -40,6 +42,7 @@ public:
 	UPROPERTY(EditAnywhere) float pickRange = 200;
 	UPROPERTY (VisibleAnywhere, BlueprintReadOnly) bool RecieveInput = true;
 	UPROPERTY(EditAnywhere) APickableItem* itemInHand = nullptr;
+	UPROPERTY(EditAnywhere) UPlayerData* playerData = nullptr;
 #pragma endregion
 
 #pragma region Private Variables
@@ -52,6 +55,7 @@ public:
 	void PickInputRecieved();
 	void StoreInputRecieved();
 	void DropInputRecieved();
+	void AttackInputRecieved();
 #pragma endregion 
 };
 

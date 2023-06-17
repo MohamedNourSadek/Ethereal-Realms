@@ -120,22 +120,30 @@ void UInventory::ToggleInventoryState()
 		ToggleInventoryState();
 	}
 }
-void UInventory::SetPickUIState(bool state) const
+void UInventory::UpdateUI(bool nearObjectExist, bool objectInHandExist) const
 {
 	if(PressEPanel != nullptr)
 	{
-		if(state)
-			PressEPanel->SetVisibility(ESlateVisibility::Visible);
+		if(nearObjectExist)
+			PressEPanel->SetIsEnabled(true);
 		else
-			PressEPanel->SetVisibility(ESlateVisibility::Hidden);
+			PressEPanel->SetIsEnabled(false);
 	}
 
 	if(PressRPanel != nullptr)
 	{
-		if(state)
-			PressRPanel->SetVisibility(ESlateVisibility::Visible);
+		if(nearObjectExist)
+			PressRPanel->SetIsEnabled(true);
 		else
-			PressRPanel->SetVisibility(ESlateVisibility::Hidden);
+			PressRPanel->SetIsEnabled(false);
+	}
+
+	if(DropGPanel != nullptr)
+	{
+		if(objectInHandExist)
+			DropGPanel->SetIsEnabled(true);
+		else
+			DropGPanel->SetIsEnabled(false);
 	}
 }
 void UInventory::StoreItemInUI(APickableItem* itemToStore)
@@ -152,11 +160,11 @@ void UInventory::StoreItemInUI(APickableItem* itemToStore)
 			
 	InventoryUIItems[unUsedSlot]->myImage->SetBrushFromTexture(GetTexture(itemType), true);
 	InventoryUIItems[unUsedSlot]->amountText->SetText(FText::FromString(FString::FromInt(itemsCount)));
-	InventoryUIItems[unUsedSlot]->itemButton->SetIsEnabled(true);
+	InventoryUIItems[unUsedSlot]->itemButton->SetIsEnabled(true); 
 	InventoryUIItems[unUsedSlot]->myType = itemType;
 	InventoryUIItems[unUsedSlot]->isUsed = true;
 }
-
+     
 int UInventory::GetSlot(InventoryItemType type)
 {
 	int alreadyExists = -1;

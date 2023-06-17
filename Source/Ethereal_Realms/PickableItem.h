@@ -18,4 +18,5 @@ protected:
 public:	
 	bool isPicked = false;
 	virtual void Tick(float DeltaTime) override;
+	FString itemName = "Item"; 
 };

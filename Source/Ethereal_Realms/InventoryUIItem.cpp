@@ -12,7 +12,7 @@ void UInventoryUIItem::OnStart()
 	{
 		itemButton->OnClicked.AddDynamic(this, &UInventoryUIItem::OnButtonClicked);
 	}
-}
+}        
 
 void UInventoryUIItem::OnButtonClicked()
 {

@@ -13,5 +13,7 @@ UCLASS()
 class ETHEREAL_REALMS_API ASword : public AWeaponBase
 {
 	GENERATED_BODY()
-	
+
+protected:
+	virtual void BeginPlay() override;
 };

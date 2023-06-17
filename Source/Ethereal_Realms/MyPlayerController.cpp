@@ -5,6 +5,7 @@
 
 #include "MyPlayerController.h"
 #include "Inventory.h"
+#include "WeaponBase.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 extern UInventory* playerInventory = nullptr;
@@ -17,6 +18,7 @@ AMyPlayerController::AMyPlayerController()
 void AMyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+	playerData = NewObject<UPlayerData>();
 }
 void AMyPlayerController::Tick(float DeltaTime)
 {
@@ -31,6 +33,7 @@ void AMyPlayerController::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Pick", IE_Pressed, this, &AMyPlayerController::PickInputRecieved);
 	PlayerInputComponent->BindAction("Inventory", IE_Pressed, this, &AMyPlayerController::InventoryInputRecieved);
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &AMyPlayerController::DropInputRecieved);
+	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AMyPlayerController::AttackInputRecieved);
 }
 #pragma endregion
 
@@ -42,10 +45,9 @@ void AMyPlayerController::UpdateUI() const
 
 	if(playerInventory != nullptr)
 	{
-		if(nearestObject != nullptr )
-			playerInventory->SetPickUIState(true);
-		else
-			playerInventory->SetPickUIState(false);
+		bool nearObjectExits = (nearestObject != nullptr) ? true : false;
+		bool objectInHandExsits = (itemInHand != nullptr) ? true : false;
+		playerInventory->UpdateUI(nearObjectExits, objectInHandExsits);
 	}
 }
 APickableItem* AMyPlayerController::GetNearestObject() const
@@ -132,6 +134,15 @@ int AMyPlayerController::RemoveItemDataFromInventory(InventoryItemType itemType)
 		return 0;
 	}
 }
+void AMyPlayerController::AttackWithWeaponInHand()
+{
+	if(itemInHand != nullptr && itemInHand->Tags.Contains("Weapon"))
+	{
+		AWeaponBase* weapon = Cast<AWeaponBase>(itemInHand);
+		int weaponDamage = weapon->weaponData->baseDamage + playerData->power + playerData->swordmanship;
+		UE_LOG(LogTemp, Display, TEXT("Attack with %s with damage %d"), *itemInHand->itemName, weaponDamage);
+	}
+}
 #pragma endregion
 
 #pragma 
@@ -157,4 +168,8 @@ void AMyPlayerController::DropInputRecieved()
 		itemInHand->FindComponentByClass<UStaticMeshComponent>()->SetCollisionProfileName("PhysicsActor", true);
 		itemInHand = nullptr;
 	}
+}
+void AMyPlayerController::AttackInputRecieved()
+{
+	AttackWithWeaponInHand();
 }
