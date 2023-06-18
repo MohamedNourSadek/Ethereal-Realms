@@ -15,6 +15,6 @@ class ETHEREAL_REALMS_API UPlayerData : public UObject
 	GENERATED_BODY()
 public:
 	UPROPERTY(EditAnywhere) int power = 0;
-	UPROPERTY(EditAnywhere) int swordmanship = 0;
+	UPROPERTY(EditAnywhere) int swordsmanship = 0;
 	UPROPERTY(EditAnywhere) int tactics = 0;
 };

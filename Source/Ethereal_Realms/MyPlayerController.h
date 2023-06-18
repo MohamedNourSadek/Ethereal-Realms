@@ -52,6 +52,7 @@ public:
 
 #pragma region Input Callbacks
 	void InventoryInputRecieved();
+	void CharacterUIOpenRecieved();
 	void PickInputRecieved();
 	void StoreInputRecieved();
 	void DropInputRecieved();

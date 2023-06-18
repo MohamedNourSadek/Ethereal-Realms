@@ -9,15 +9,17 @@
 
 extern UInventory* playerInventory = nullptr;
 
-void UInventory::OnStart(UCanvasPanel* dropGPanel, UCanvasPanel* pressEPanel, UCanvasPanel* pressRPanel, UCanvasPanel* gameplayPanel, UCanvasPanel* inventoryPanel, TArray<UInventoryUIItem*> items)
+void UInventory::OnStart(UCanvasPanel* dropGPanel, UCanvasPanel* pressEPanel, UCanvasPanel* pressRPanel, UCanvasPanel* pressLMPanel, UCanvasPanel* gameplayPanel, UCanvasPanel* inventoryPanel, UCanvasPanel* characterCanvas, TArray<UInventoryUIItem*> items)
 {
 	playerInventory = this;
 	
 	PressEPanel = pressEPanel;
 	PressRPanel = pressRPanel;
 	DropGPanel = dropGPanel;
+	PressLMPanel = pressLMPanel;
 	GameplayPanel = gameplayPanel;
 	InventoryPanel = inventoryPanel;
+	CharacterCanvas = characterCanvas;
 	InventoryUIItems = items;
 
 	for (UInventoryUIItem* item : items)
@@ -106,7 +108,7 @@ void UInventory::ToggleInventoryState()
 			MyPlayer->RecieveInput = false;   
 			UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetShowMouseCursor(true);
 		}
-		else
+		else if(InventoryPanel->GetVisibility() == ESlateVisibility::Visible)
 		{
 			GameplayPanel->SetVisibility(ESlateVisibility::Visible);
 			InventoryPanel->SetVisibility(ESlateVisibility::Hidden);
@@ -120,6 +122,32 @@ void UInventory::ToggleInventoryState()
 		ToggleInventoryState();
 	}
 }
+void UInventory::ToggleCharacterState()
+{
+	if(MyPlayer != nullptr)
+	{
+		if(GameplayPanel->GetVisibility() == ESlateVisibility::Visible)
+		{
+			CharacterCanvas->SetVisibility(ESlateVisibility::Visible);
+			GameplayPanel->SetVisibility(ESlateVisibility::Hidden);
+			MyPlayer->RecieveInput = false;   
+			UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetShowMouseCursor(true);
+		}
+		else if(CharacterCanvas->GetVisibility() == ESlateVisibility::Visible)
+		{
+			GameplayPanel->SetVisibility(ESlateVisibility::Visible);
+			CharacterCanvas->SetVisibility(ESlateVisibility::Hidden);
+			MyPlayer->RecieveInput = true;
+			UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetShowMouseCursor(false);
+		}
+	}
+	else
+	{
+		MyPlayer = Cast<AMyPlayerController>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		ToggleCharacterState();
+	}
+}
+
 void UInventory::UpdateUI(bool nearObjectExist, bool objectInHandExist) const
 {
 	if(PressEPanel != nullptr)
@@ -144,6 +172,25 @@ void UInventory::UpdateUI(bool nearObjectExist, bool objectInHandExist) const
 			DropGPanel->SetIsEnabled(true);
 		else
 			DropGPanel->SetIsEnabled(false);
+	}
+
+	if(PressLMPanel != nullptr)
+	{
+		if(objectInHandExist)
+		{
+			if(MyPlayer->itemInHand->Tags.Contains("Weapon"))
+			{
+				PressLMPanel->SetIsEnabled(true);
+			}
+			else
+			{
+				PressLMPanel->SetIsEnabled(false);
+			}
+		}
+		else
+		{
+			PressLMPanel->SetIsEnabled(false);
+		}
 	}
 }
 void UInventory::StoreItemInUI(APickableItem* itemToStore)

@@ -14,8 +14,9 @@ class ETHEREAL_REALMS_API UInventory : public UUserWidget
 public:
 	GENERATED_BODY()
 
-	UFUNCTION(BlueprintCallable) void OnStart(UCanvasPanel* dropGPanel, UCanvasPanel* pressEPanel, UCanvasPanel* pressRPanel, UCanvasPanel* GamePlayPanel, UCanvasPanel* InventoryPanel,TArray<UInventoryUIItem*> items);
+	UFUNCTION(BlueprintCallable) void OnStart(UCanvasPanel* dropGPanel, UCanvasPanel* pressEPanel, UCanvasPanel* pressRPanel, UCanvasPanel* pressLMPanel, UCanvasPanel* GamePlayPanel, UCanvasPanel* InventoryPanel, UCanvasPanel* characterCanvas,TArray<UInventoryUIItem*> items);
 	void ToggleInventoryState();
+	void ToggleCharacterState();
 	void PickItem();
 
 #pragma region Functions
@@ -33,12 +34,14 @@ public:
 	UPROPERTY(EditAnywhere) TArray<UTexture2D*> textures;
 	UPROPERTY(EditAnywhere) UVerticalBox* buttonsParent;
 	AMyPlayerController* MyPlayer = nullptr;
-	UCanvasPanel* PressEPanel = nullptr;
-	UCanvasPanel* PressRPanel = nullptr;
-	UCanvasPanel* DropGPanel = nullptr;
-	UCanvasPanel* GameplayPanel= nullptr;
-	UCanvasPanel* InventoryPanel= nullptr;
-	TArray<UInventoryUIItem*> InventoryUIItems;
+	UPROPERTY(EditAnywhere) UCanvasPanel* PressEPanel = nullptr;
+	UPROPERTY(EditAnywhere) UCanvasPanel* PressRPanel = nullptr;
+	UPROPERTY(EditAnywhere) UCanvasPanel* DropGPanel = nullptr;
+	UPROPERTY(EditAnywhere) UCanvasPanel* PressLMPanel = nullptr;
+	UPROPERTY(EditAnywhere) UCanvasPanel* GameplayPanel= nullptr;
+	UPROPERTY(EditAnywhere) UCanvasPanel* InventoryPanel= nullptr;
+	UPROPERTY(EditAnywhere) UCanvasPanel* CharacterCanvas = nullptr;
+	UPROPERTY(EditAnywhere) TArray<UInventoryUIItem*> InventoryUIItems;
 #pragma endregion
 	
 };

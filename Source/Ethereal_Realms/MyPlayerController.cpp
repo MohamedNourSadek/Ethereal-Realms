@@ -32,6 +32,7 @@ void AMyPlayerController::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Store", IE_Pressed, this, &AMyPlayerController::StoreInputRecieved);
 	PlayerInputComponent->BindAction("Pick", IE_Pressed, this, &AMyPlayerController::PickInputRecieved);
 	PlayerInputComponent->BindAction("Inventory", IE_Pressed, this, &AMyPlayerController::InventoryInputRecieved);
+	PlayerInputComponent->BindAction("CharacterUI", IE_Pressed, this, &AMyPlayerController::CharacterUIOpenRecieved);
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &AMyPlayerController::DropInputRecieved);
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AMyPlayerController::AttackInputRecieved);
 }
@@ -139,7 +140,7 @@ void AMyPlayerController::AttackWithWeaponInHand()
 	if(itemInHand != nullptr && itemInHand->Tags.Contains("Weapon"))
 	{
 		AWeaponBase* weapon = Cast<AWeaponBase>(itemInHand);
-		int weaponDamage = weapon->weaponData->baseDamage + playerData->power + playerData->swordmanship;
+		int weaponDamage = weapon->weaponData->baseDamage + playerData->power + playerData->swordsmanship;
 		UE_LOG(LogTemp, Display, TEXT("Attack with %s with damage %d"), *itemInHand->itemName, weaponDamage);
 	}
 }
@@ -157,6 +158,10 @@ void AMyPlayerController::StoreInputRecieved()
 void AMyPlayerController::InventoryInputRecieved()
 {
 	playerInventory->ToggleInventoryState();
+}
+void AMyPlayerController::CharacterUIOpenRecieved()
+{
+	playerInventory->ToggleCharacterState();
 }
 void AMyPlayerController::DropInputRecieved()
 {
