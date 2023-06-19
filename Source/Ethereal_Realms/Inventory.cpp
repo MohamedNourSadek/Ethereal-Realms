@@ -9,7 +9,7 @@
 
 extern UInventory* playerInventory = nullptr;
 
-void UInventory::OnStart(UCanvasPanel* dropGPanel, UCanvasPanel* pressEPanel, UCanvasPanel* pressRPanel, UCanvasPanel* pressLMPanel, UCanvasPanel* gameplayPanel, UCanvasPanel* inventoryPanel, UCanvasPanel* characterCanvas, TArray<UInventoryUIItem*> items)
+void UInventory::OnStart(UCanvasPanel* dropGPanel, UCanvasPanel* pressEPanel, UCanvasPanel* pressRPanel, UCanvasPanel* pressLMPanel, UCanvasPanel* gameplayPanel, UCanvasPanel* inventoryPanel, UCanvasPanel* characterCanvas,USlider* powerSlider, USlider* swordsmanshipSlider, USlider* tacticsSlider, TArray<UInventoryUIItem*> items)
 {
 	playerInventory = this;
 	
@@ -21,7 +21,14 @@ void UInventory::OnStart(UCanvasPanel* dropGPanel, UCanvasPanel* pressEPanel, UC
 	InventoryPanel = inventoryPanel;
 	CharacterCanvas = characterCanvas;
 	InventoryUIItems = items;
+	PowerSlider = powerSlider;
+	SwordsManShipSlider = swordsmanshipSlider;
+	TacticsSlider = tacticsSlider;
 
+	PowerSlider->OnValueChanged.AddDynamic(this, &UInventory::OnCharacterParametersChanged);
+	SwordsManShipSlider->OnValueChanged.AddDynamic(this, &UInventory::OnCharacterParametersChanged);
+	TacticsSlider->OnValueChanged.AddDynamic(this, &UInventory::OnCharacterParametersChanged);
+	
 	for (UInventoryUIItem* item : items)
 		item->OnStart();
 
@@ -236,4 +243,15 @@ UTexture2D* UInventory::GetTexture(InventoryItemType type)
 		return textures[1];
 	else
 		return textures[0];
+}
+
+
+
+
+void UInventory::OnCharacterParametersChanged(float value)
+{
+	MyPlayer->playerData->power = PowerSlider->GetValue() * 100;
+	MyPlayer->playerData->swordsmanship = SwordsManShipSlider->GetValue() * 100;
+	MyPlayer->playerData->tactics = TacticsSlider->GetValue() * 100;
+
 }

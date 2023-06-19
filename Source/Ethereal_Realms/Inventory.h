@@ -6,6 +6,7 @@
 #include "InventoryUIItem.h"
 #include "MyPlayerController.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/Slider.h"
 #include "Components/VerticalBox.h"
 #include "Inventory.generated.h"
 UCLASS()
@@ -14,7 +15,7 @@ class ETHEREAL_REALMS_API UInventory : public UUserWidget
 public:
 	GENERATED_BODY()
 
-	UFUNCTION(BlueprintCallable) void OnStart(UCanvasPanel* dropGPanel, UCanvasPanel* pressEPanel, UCanvasPanel* pressRPanel, UCanvasPanel* pressLMPanel, UCanvasPanel* GamePlayPanel, UCanvasPanel* InventoryPanel, UCanvasPanel* characterCanvas,TArray<UInventoryUIItem*> items);
+	UFUNCTION(BlueprintCallable) void OnStart(UCanvasPanel* dropGPanel, UCanvasPanel* pressEPanel, UCanvasPanel* pressRPanel, UCanvasPanel* pressLMPanel, UCanvasPanel* GamePlayPanel, UCanvasPanel* InventoryPanel, UCanvasPanel* characterCanvas,USlider* PowerSlider, USlider* swordsmanshipSlider, USlider* tacticsSlider, TArray<UInventoryUIItem*> items);
 	void ToggleInventoryState();
 	void ToggleCharacterState();
 	void PickItem();
@@ -22,6 +23,7 @@ public:
 #pragma region Functions
 	UPROPERTY(EditAnywhere) TSubclassOf<AActor> cube;
 	UPROPERTY(EditAnywhere) TSubclassOf<AActor> sword;
+	UFUNCTION(BlueprintCallable) void OnCharacterParametersChanged(float newValue);
 	void UpdateUI(bool nearObjectExist, bool objectInHandExist) const;
 	void DropItem(InventoryItemType itemType);
 	void StoreItem();
@@ -41,6 +43,9 @@ public:
 	UPROPERTY(EditAnywhere) UCanvasPanel* GameplayPanel= nullptr;
 	UPROPERTY(EditAnywhere) UCanvasPanel* InventoryPanel= nullptr;
 	UPROPERTY(EditAnywhere) UCanvasPanel* CharacterCanvas = nullptr;
+	UPROPERTY(EditAnywhere) USlider* PowerSlider = nullptr;
+	UPROPERTY(EditAnywhere) USlider* SwordsManShipSlider = nullptr;
+	UPROPERTY(EditAnywhere) USlider* TacticsSlider = nullptr;
 	UPROPERTY(EditAnywhere) TArray<UInventoryUIItem*> InventoryUIItems;
 #pragma endregion
 	
