@@ -46,14 +46,27 @@ void APlayfabManager::LoginWithCustomID()
 #pragma endregion 
 
 #pragma region CallBacks
+
 void APlayfabManager::OnSuccess(const PlayFab::ClientModels::FLoginResult& LoginResult) const
 {
 	auto playerID = LoginResult.PlayFabId;
 	UE_LOG(LogTemp, Warning, TEXT("You've logged in successfully, you playfab ID %s"), *playerID);
+	
+	PlayFab::ClientModels::FGetUserDataRequest request;
+	
+	auto onSuccess = PlayFab::UPlayFabClientAPI::FGetUserDataDelegate::CreateUObject(this, &APlayfabManager::OnDataRetrieved);
+	auto onError = PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &APlayfabManager::OnError);
+	
+	clientAPI->GetUserData(request,onSuccess, onError);
+}
+
+void APlayfabManager::OnDataRetrieved(const PlayFab::ClientModels::FGetUserDataResult& result) const
+{
+	UE_LOG(LogTemp, Warning, TEXT("DATA RECIEVED"));
 }
 void APlayfabManager::OnError(const PlayFab::FPlayFabCppError& ErrorResult) const
-{
-	UE_LOG(LogTemp, Error, TEXT("Something went wrong with your first API call.\nHere's some debug information:\n%s"), *ErrorResult.GenerateErrorReport());
+{  
+	UE_LOG(LogTemp, Error, TEXT("Error"));
 }
 #pragma endregion 
 

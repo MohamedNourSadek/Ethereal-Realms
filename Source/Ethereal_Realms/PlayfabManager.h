@@ -22,10 +22,12 @@ public:
 	
 	void OnSuccess(const PlayFab::ClientModels::FLoginResult& LoginResult) const;
 	void OnError(const PlayFab::FPlayFabCppError& ErrorResult) const;
-
-
+	void OnDataRetrieved(const PlayFab::ClientModels::FGetUserDataResult& request) const;
 	void InitializePlayfab();
 	void LoginWithCustomID();
+
+
+	UPROPERTY(EditAnywhere) TMap<FString, FString> playerData;
 private:
 	PlayFabClientPtr clientAPI = nullptr;
 };
