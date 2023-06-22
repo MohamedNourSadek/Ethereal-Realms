@@ -5,6 +5,7 @@
 
 #include "MyPlayerController.h"
 #include "Inventory.h"
+#include "JsonObjectConverter.h"
 #include "WeaponBase.h"
 #include "Kismet/KismetSystemLibrary.h"
 

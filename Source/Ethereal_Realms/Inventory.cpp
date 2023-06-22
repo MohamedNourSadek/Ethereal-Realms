@@ -32,6 +32,8 @@ void UInventory::OnStart(UCanvasPanel* dropGPanel, UCanvasPanel* pressEPanel, UC
 	for (UInventoryUIItem* item : items)
 		item->OnStart();
 
+
+	
 	MyPlayer = Cast<AMyPlayerController>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
 

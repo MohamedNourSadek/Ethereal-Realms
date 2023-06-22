@@ -16,7 +16,7 @@ class ETHEREAL_REALMS_API APlayfabManager : public AActor
 	
 public:	
 	APlayfabManager();
-
+	FString InventoryDataKey = "InventoryDataKey";
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	
@@ -25,7 +25,7 @@ public:
 	void OnDataRetrieved(const PlayFab::ClientModels::FGetUserDataResult& request) const;
 	void InitializePlayfab();
 	void LoginWithCustomID();
-
+	void OnDataUpdate(const PlayFab::ClientModels::FUpdateUserDataResult& result) const;
 
 	UPROPERTY(EditAnywhere) TMap<FString, FString> playerData;
 private:

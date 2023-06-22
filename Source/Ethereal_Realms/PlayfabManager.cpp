@@ -59,14 +59,32 @@ void APlayfabManager::OnSuccess(const PlayFab::ClientModels::FLoginResult& Login
 	
 	clientAPI->GetUserData(request,onSuccess, onError);
 }
-
+void APlayfabManager::OnDataUpdate(const PlayFab::ClientModels::FUpdateUserDataResult& result) const
+{
+	UE_LOG(LogTemp, Warning, TEXT("DATA Updated"));
+}
 void APlayfabManager::OnDataRetrieved(const PlayFab::ClientModels::FGetUserDataResult& result) const
 {
 	UE_LOG(LogTemp, Warning, TEXT("DATA RECIEVED"));
+
+	if(result.Data.Contains(InventoryDataKey))
+		UE_LOG(LogTemp, Display, TEXT("Data recieved from user saved data"))
+	else 
+	{
+		PlayFab::ClientModels::FUpdateUserDataRequest request; 
+		TMap<FString, FString> x;
+		x.Add(InventoryDataKey, "");
+		x[InventoryDataKey] = "";
+		request.Data = x;
+		auto onSuccess = PlayFab::UPlayFabClientAPI::FUpdateUserDataDelegate::CreateUObject(this, &APlayfabManager::OnDataUpdate);
+		auto onError = PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &APlayfabManager::OnError);
+	
+		clientAPI->UpdateUserData(request, onSuccess, onError);
+	}
 }
 void APlayfabManager::OnError(const PlayFab::FPlayFabCppError& ErrorResult) const
-{  
-	UE_LOG(LogTemp, Error, TEXT("Error"));
+{
+	UE_LOG(LogTemp, Error, TEXT("Error %s "), *ErrorResult.ErrorMessage);
 }
 #pragma endregion 
 
