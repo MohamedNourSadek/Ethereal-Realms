@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "InventoryItemData.h"
 #include "PlayerData.h"
+#include "FPlayerInventoryData.h"
 #include "MyPlayerController.generated.h"
 
 
@@ -46,7 +47,8 @@ public:
 #pragma endregion
 
 #pragma region Private Variables
-	TMap<UInventoryItemData*, int> inventoryItems;
+public:
+	UPROPERTY(EditAnywhere) FPlayerInventoryData playerInventoryData;
 #pragma endregion 
 
 

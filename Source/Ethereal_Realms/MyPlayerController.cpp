@@ -5,7 +5,6 @@
 
 #include "MyPlayerController.h"
 #include "Inventory.h"
-#include "JsonObjectConverter.h"
 #include "WeaponBase.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -25,6 +24,9 @@ void AMyPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	UpdateUI();
+
+	for(auto element : playerInventoryData.inventoryItems)
+		UE_LOG(LogTemp, Display, TEXT("%d"), element.Key);
 }
 void AMyPlayerController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -85,49 +87,49 @@ APickableItem* AMyPlayerController::GetNearestObject() const
 }
 int AMyPlayerController::AddItemDataToInventory(InventoryItemType itemType)
 {
-	UInventoryItemData* myItem = nullptr;
-	
-	for(const auto &item : inventoryItems)
+	InventoryItemType myItem = InventoryItemType::Empty;
+
+	for(const auto &item : playerInventoryData.inventoryItems)
 	{
-		if(item.Key->ItemType == itemType)
-			myItem = item.Key;
+		if (item.Key == itemType)
+		{
+			myItem = (InventoryItemType)(item.Key);
+		}
 	}
 
-	if(myItem != nullptr)
+	if(myItem != InventoryItemType::Empty)
 	{
-		inventoryItems[myItem] += 1;
-		return inventoryItems[myItem];
+		playerInventoryData.inventoryItems[myItem] += 1;
+		return playerInventoryData.inventoryItems[myItem];
 	}
 	else
 	{
-		UInventoryItemData* newItem = NewObject<UInventoryItemData>();
-		newItem->ItemType = itemType;
-		inventoryItems.Add(newItem, 1);
+		InventoryItemType newItem = itemType;
+		playerInventoryData.inventoryItems.Add(newItem, 1);
 
 		return 1;
 	}
-
 }
 int AMyPlayerController::RemoveItemDataFromInventory(InventoryItemType itemType)
 {
-	UInventoryItemData* myItem = nullptr;
+	InventoryItemType myItem = InventoryItemType::Empty;
 
-	for(const auto &item : inventoryItems)
+	for(const auto &item : playerInventoryData.inventoryItems)
 	{
-		if(item.Key->ItemType == itemType)
-			myItem = item.Key;
+		if (item.Key == itemType)
+			myItem = (InventoryItemType)(item.Key);
 	}
 
-	if(myItem != nullptr)
+	if(myItem != InventoryItemType::Empty)
 	{
-		if(inventoryItems[myItem] > 1)
+		if(playerInventoryData.inventoryItems[myItem] > 1)
 		{
-			inventoryItems[myItem] -= 1;
-			return inventoryItems[myItem]; 
+			playerInventoryData.inventoryItems[myItem] -= 1;
+			return playerInventoryData.inventoryItems[myItem];
 		}
 		else
 		{
-			inventoryItems.Remove(myItem);
+			playerInventoryData.inventoryItems.Remove(myItem);
 			return 0;
 		}
 	}

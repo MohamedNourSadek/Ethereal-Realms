@@ -27,7 +27,6 @@ public:
 	void LoginWithCustomID();
 	void OnDataUpdate(const PlayFab::ClientModels::FUpdateUserDataResult& result) const;
 
-	UPROPERTY(EditAnywhere) TMap<FString, FString> playerData;
 private:
 	PlayFabClientPtr clientAPI = nullptr;
 };

@@ -2,7 +2,7 @@
 
 
 #include "InventoryUIItem.h"
-#include "Ethereal_RealmsGameModeBase.h"
+#include "Inventory.h"
 
 extern UInventory* playerInventory;
 

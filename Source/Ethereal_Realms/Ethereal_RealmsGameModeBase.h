@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Inventory.h"
 #include "GameFramework/GameModeBase.h"
 #include "Ethereal_RealmsGameModeBase.generated.h"
 

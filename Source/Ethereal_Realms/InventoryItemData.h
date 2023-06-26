@@ -6,10 +6,8 @@
 #include "PublicStatics.h"
 #include "InventoryItemData.generated.h"
 
-UCLASS()
-
-
-class ETHEREAL_REALMS_API UInventoryItemData : public UObject
+USTRUCT()
+struct ETHEREAL_REALMS_API FInventoryItemData
 {
 	GENERATED_BODY()
 
