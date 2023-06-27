@@ -20,6 +20,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	
+	void UpdatePlayFabData(TMap<FString, FString>& dataToUpdate) const;
 	void OnSuccess(const PlayFab::ClientModels::FLoginResult& LoginResult) const;
 	void OnError(const PlayFab::FPlayFabCppError& ErrorResult) const;
 	void OnDataRetrieved(const PlayFab::ClientModels::FGetUserDataResult& request) const;

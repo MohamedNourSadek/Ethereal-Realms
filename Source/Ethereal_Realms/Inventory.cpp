@@ -37,24 +37,6 @@ void UInventory::OnStart(UCanvasPanel* dropGPanel, UCanvasPanel* pressEPanel, UC
 	MyPlayer = Cast<AMyPlayerController>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
 
-void UInventory::StoreItem()
-{
-	if(MyPlayer != nullptr)
-	{
-		APickableItem* nearestObj = MyPlayer->GetNearestObject();
-
-		if(nearestObj != nullptr)
-		{
-			StoreItemInUI(nearestObj);
-			nearestObj->Destroy();
-		}
-	}
-	else
-	{
-		MyPlayer = Cast<AMyPlayerController>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-		StoreItem();
-	}
-}
 void UInventory::PickItem()
 {
 	if(MyPlayer != nullptr)
@@ -202,25 +184,16 @@ void UInventory::UpdateUI(bool nearObjectExist, bool objectInHandExist) const
 		}
 	}
 }
-void UInventory::StoreItemInUI(APickableItem* itemToStore)
+void UInventory::StoreItem(InventoryItemType itemType, int itemsCount)
 {
-	InventoryItemType itemType = InventoryItemType::Empty;
-			
-	if(itemToStore->Tags.Contains("Cube"))
-		itemType = InventoryItemType::Cube;
-	else if(itemToStore->Tags.Contains("Sword"))
-		itemType = InventoryItemType::Sword;
-
 	int unUsedSlot = GetSlot(itemType);
-	const int itemsCount = MyPlayer->AddItemDataToInventory(itemType);
-			
+
 	InventoryUIItems[unUsedSlot]->myImage->SetBrushFromTexture(GetTexture(itemType), true);
 	InventoryUIItems[unUsedSlot]->amountText->SetText(FText::FromString(FString::FromInt(itemsCount)));
-	InventoryUIItems[unUsedSlot]->itemButton->SetIsEnabled(true); 
+	InventoryUIItems[unUsedSlot]->itemButton->SetIsEnabled(true);
 	InventoryUIItems[unUsedSlot]->myType = itemType;
 	InventoryUIItems[unUsedSlot]->isUsed = true;
 }
-     
 int UInventory::GetSlot(InventoryItemType type)
 {
 	int alreadyExists = -1;

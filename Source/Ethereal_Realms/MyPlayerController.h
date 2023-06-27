@@ -37,6 +37,8 @@ public:
 
 #pragma region Private Functions
 	void UpdateUI() const;
+	void StoreNearestItem();
+	void StoreItem(InventoryItemType itemType);
 #pragma endregion 
 
 #pragma region Exposed Variables

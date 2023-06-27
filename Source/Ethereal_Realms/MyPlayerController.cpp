@@ -5,10 +5,13 @@
 
 #include "MyPlayerController.h"
 #include "Inventory.h"
+#include "JsonObjectConverter.h"
+#include "PlayfabManager.h"
 #include "WeaponBase.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 extern UInventory* playerInventory = nullptr;
+extern APlayfabManager* playFabManager = nullptr;
 
 #pragma region Unreal Delegates
 AMyPlayerController::AMyPlayerController()
@@ -24,9 +27,6 @@ void AMyPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	UpdateUI();
-
-	for(auto element : playerInventoryData.inventoryItems)
-		UE_LOG(LogTemp, Display, TEXT("%d"), element.Key);
 }
 void AMyPlayerController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -147,6 +147,37 @@ void AMyPlayerController::AttackWithWeaponInHand()
 		UE_LOG(LogTemp, Display, TEXT("Attack with %s with damage %d"), *itemInHand->itemName, weaponDamage);
 	}
 }
+void AMyPlayerController::StoreItem(InventoryItemType itemType)
+{
+	const int itemsCount = AddItemDataToInventory(itemType);
+	playerInventory->StoreItem(itemType, itemsCount);
+}
+void AMyPlayerController::StoreNearestItem()
+{
+	APickableItem* nearestObj = GetNearestObject();
+
+	if (nearestObj != nullptr)
+	{
+		InventoryItemType itemType = InventoryItemType::Empty;
+
+		if (nearestObj->Tags.Contains("Cube"))
+			itemType = InventoryItemType::Cube;
+		else if (nearestObj->Tags.Contains("Sword"))
+			itemType = InventoryItemType::Sword;
+
+		const int itemsCount = AddItemDataToInventory(itemType);
+		playerInventory->StoreItem(itemType, itemsCount);
+		nearestObj->Destroy();
+
+
+		TMap<FString, FString> DataToUpdate;
+		FString DataString;
+		FJsonObjectConverter::UStructToJsonObjectString(playerInventoryData, DataString);
+		DataToUpdate.Add(playFabManager->InventoryDataKey, DataString);
+		playFabManager->UpdatePlayFabData(DataToUpdate);
+	}
+}
+
 #pragma endregion
 
 #pragma 
@@ -156,7 +187,7 @@ void AMyPlayerController::PickInputRecieved()
 }
 void AMyPlayerController::StoreInputRecieved()
 {
-	playerInventory->StoreItem();
+	StoreNearestItem();
 }
 void AMyPlayerController::InventoryInputRecieved()
 {

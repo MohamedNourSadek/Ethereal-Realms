@@ -26,8 +26,7 @@ public:
 	UFUNCTION(BlueprintCallable) void OnCharacterParametersChanged(float newValue);
 	void UpdateUI(bool nearObjectExist, bool objectInHandExist) const;
 	void DropItem(InventoryItemType itemType);
-	void StoreItem();
-	void StoreItemInUI(APickableItem* objectToStore);
+	void StoreItem(InventoryItemType type, int itemsCount);
 	int GetSlot(InventoryItemType type);
 	UTexture2D* GetTexture(InventoryItemType type);
 #pragma endregion

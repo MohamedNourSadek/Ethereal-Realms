@@ -5,9 +5,12 @@
 #include "Core/PlayFabClientAPI.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
 #include "FPlayerInventoryData.h"
+#include "Inventory.h"
 #include "MyPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 
+extern UInventory* playerInventory = nullptr;
+extern APlayfabManager* playFabManager = nullptr;
 
 #pragma region Unreal Functions
 APlayfabManager::APlayfabManager()
@@ -34,6 +37,7 @@ void APlayfabManager::InitializePlayfab()
 {
 	GetMutableDefault<UPlayFabRuntimeSettings>()->TitleId = TEXT("6C634");
 	clientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+	playFabManager = this;
 }
 void APlayfabManager::LoginWithCustomID()
 {
@@ -48,6 +52,18 @@ void APlayfabManager::LoginWithCustomID()
 		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &APlayfabManager::OnError)
 	);
 }
+void APlayfabManager::UpdatePlayFabData(TMap<FString, FString>& dataToUpdate) const
+{
+	PlayFab::ClientModels::FUpdateUserDataRequest request;
+
+	request.Data = dataToUpdate;
+
+	auto onSuccess = PlayFab::UPlayFabClientAPI::FUpdateUserDataDelegate::CreateUObject(this, &APlayfabManager::OnDataUpdate);
+	auto onError = PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &APlayfabManager::OnError);
+
+	clientAPI->UpdateUserData(request, onSuccess, onError);
+}
+
 #pragma endregion 
 
 #pragma region CallBacks
@@ -81,30 +97,20 @@ void APlayfabManager::OnDataRetrieved(const PlayFab::ClientModels::FGetUserDataR
 		FJsonObjectConverter::JsonObjectStringToUStruct(userDataString, &userData);
 
 		MyPlayer->playerInventoryData = userData;
+
+		for(auto element :userData.inventoryItems)
+			playerInventory->StoreItem((InventoryItemType)(element.Key), element.Value);
+
 		UE_LOG(LogTemp, Display, TEXT("Data recieved from user saved data"));
 	}
 	else 
 	{
-		FString JSONPayload;
+		TMap<FString, FString> DataToUpdate;
+		FString DataString;
+		FJsonObjectConverter::UStructToJsonObjectString(MyPlayer->playerInventoryData, DataString);
 
-		InventoryItemType newItem = InventoryItemType::Sword;
-		MyPlayer->playerInventoryData.inventoryItems.Add(newItem, 1);
-
-		FJsonObjectConverter::UStructToJsonObjectString(MyPlayer->playerInventoryData, JSONPayload);
-
-		PlayFab::ClientModels::FUpdateUserDataRequest request; 
-		TMap<FString, FString> x;
-
-		
-		x.Add(InventoryDataKey, "");
-		x[InventoryDataKey] = JSONPayload;
-		request.Data = x;
-		
-
-		auto onSuccess = PlayFab::UPlayFabClientAPI::FUpdateUserDataDelegate::CreateUObject(this, &APlayfabManager::OnDataUpdate);
-		auto onError = PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &APlayfabManager::OnError);
-	
-		clientAPI->UpdateUserData(request, onSuccess, onError);
+		DataToUpdate.Add(InventoryDataKey, DataString);
+		UpdatePlayFabData(DataToUpdate);
 	}
 }
 void APlayfabManager::OnError(const PlayFab::FPlayFabCppError& ErrorResult) const
