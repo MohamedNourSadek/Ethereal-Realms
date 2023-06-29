@@ -6,6 +6,7 @@
 #include "PickableItem.h"
 #include "GameFramework/Character.h"
 #include "InventoryItemData.h"
+#include "UserDataMap.h"
 #include "PlayerData.h"
 #include "FPlayerInventoryData.h"
 #include "MyPlayerController.generated.h"
@@ -45,7 +46,7 @@ public:
 	UPROPERTY(EditAnywhere) float pickRange = 200;
 	UPROPERTY (VisibleAnywhere, BlueprintReadOnly) bool RecieveInput = true;
 	UPROPERTY(EditAnywhere) APickableItem* itemInHand = nullptr;
-	UPROPERTY(EditAnywhere) UPlayerData* playerData = nullptr;
+	UPROPERTY(EditAnywhere) FPlayerData playerData;
 #pragma endregion
 
 #pragma region Private Variables
@@ -54,13 +55,15 @@ public:
 #pragma endregion 
 
 
-#pragma region Input Callbacks
+#pragma region Callbacks
 	void InventoryInputRecieved();    
 	void CharacterUIOpenRecieved(); 
 	void PickInputRecieved();
 	void StoreInputRecieved();
 	void DropInputRecieved();
 	void AttackInputRecieved();
+	UFUNCTION()
+	void OnPlayerLoggedIn(FUserDataMap userData);
 #pragma endregion 
 };
 

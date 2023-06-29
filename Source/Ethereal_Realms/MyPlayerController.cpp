@@ -21,7 +21,7 @@ AMyPlayerController::AMyPlayerController()
 void AMyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	playerData = NewObject<UPlayerData>();
+	playFabManager->OnUserLoggedInEvent.AddDynamic(this, &AMyPlayerController::OnPlayerLoggedIn);
 }
 void AMyPlayerController::Tick(float DeltaTime)
 {
@@ -143,7 +143,7 @@ void AMyPlayerController::AttackWithWeaponInHand()
 	if(itemInHand != nullptr && itemInHand->Tags.Contains("Weapon"))
 	{
 		AWeaponBase* weapon = Cast<AWeaponBase>(itemInHand);
-		int weaponDamage = weapon->weaponData->baseDamage + playerData->power + playerData->swordsmanship;
+		int weaponDamage = weapon->weaponData->baseDamage + playerData.power + playerData.swordsmanship;
 		UE_LOG(LogTemp, Display, TEXT("Attack with %s with damage %d"), *itemInHand->itemName, weaponDamage);
 	}
 }
@@ -180,7 +180,53 @@ void AMyPlayerController::StoreNearestItem()
 
 #pragma endregion
 
-#pragma 
+#pragma
+void AMyPlayerController::OnPlayerLoggedIn(FUserDataMap userData)
+{
+	if (userData.UserDataMap.Contains(playFabManager->InventoryDataKey))
+	{
+		FString userDataString = userData.UserDataMap[playFabManager->InventoryDataKey].Value;
+		FPlayerInventoryData userData;
+		FJsonObjectConverter::JsonObjectStringToUStruct(userDataString, &userData);
+
+		playerInventoryData = userData;
+
+		for (auto &element : userData.inventoryItems)
+			playerInventory->StoreItem((InventoryItemType)(element.Key), element.Value);
+
+		UE_LOG(LogTemp, Warning, TEXT("Data recieved from user saved data"));
+	}
+	else
+	{
+		TMap<FString, FString> DataToUpdate;
+		FString DataString;
+		FJsonObjectConverter::UStructToJsonObjectString(playerInventoryData, DataString);
+
+		DataToUpdate.Add(playFabManager->InventoryDataKey, DataString);
+		playFabManager->UpdatePlayFabData(DataToUpdate);
+	}
+
+	if(userData.UserDataMap.Contains(playFabManager->PlayerDataKey))
+	{
+		FString userDataString = userData.UserDataMap[playFabManager->PlayerDataKey].Value;
+		FPlayerData userData;
+		FJsonObjectConverter::JsonObjectStringToUStruct(userDataString, &userData);
+
+		playerData = userData;
+
+		UE_LOG(LogTemp, Warning, TEXT("Data recieved from user saved data"));
+	}
+	else
+	{
+		TMap<FString, FString> DataToUpdate;
+		FString DataString;
+		FJsonObjectConverter::UStructToJsonObjectString(playerData, DataString);
+
+		DataToUpdate.Add(playFabManager->PlayerDataKey, DataString);
+		playFabManager->UpdatePlayFabData(DataToUpdate);
+	}
+}
+
 void AMyPlayerController::PickInputRecieved()
 {
 	playerInventory->PickItem();

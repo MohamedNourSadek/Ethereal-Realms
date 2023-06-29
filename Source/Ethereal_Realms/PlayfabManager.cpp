@@ -16,7 +16,7 @@ extern APlayfabManager* playFabManager = nullptr;
 APlayfabManager::APlayfabManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
+	playFabManager = this;
 }
 void APlayfabManager::BeginPlay()
 {
@@ -28,16 +28,35 @@ void APlayfabManager::BeginPlay()
 void APlayfabManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	timeSinceStartUp += DeltaTime;
+	UpdateDataPeriodically();
 }
 #pragma endregion
 
 #pragma region Public Fucntions
+void APlayfabManager::UpdateDataPeriodically()
+{
+	if((((int)timeSinceStartUp/ UpdateEverySecond) != lastSecondUpdated) && DataToUpdate.Num() != 0)
+	{
+		lastSecondUpdated = ((int)(timeSinceStartUp/ UpdateEverySecond));
+
+		PlayFab::ClientModels::FUpdateUserDataRequest request;
+		request.Data = DataToUpdate;
+
+		auto onSuccess = PlayFab::UPlayFabClientAPI::FUpdateUserDataDelegate::CreateUObject(this, &APlayfabManager::OnDataUpdate);
+		auto onError = PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &APlayfabManager::OnError);
+
+		clientAPI->UpdateUserData(request, onSuccess, onError);
+
+		DataToUpdate.Reset();
+
+		UE_LOG(LogTemp, Error, TEXT("Updating .. %f"), timeSinceStartUp);
+	}
+}
 void APlayfabManager::InitializePlayfab()
 {
 	GetMutableDefault<UPlayFabRuntimeSettings>()->TitleId = TEXT("6C634");
 	clientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
-	playFabManager = this;
 }
 void APlayfabManager::LoginWithCustomID()
 {
@@ -52,16 +71,23 @@ void APlayfabManager::LoginWithCustomID()
 		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &APlayfabManager::OnError)
 	);
 }
-void APlayfabManager::UpdatePlayFabData(TMap<FString, FString>& dataToUpdate) const
+void APlayfabManager::UpdatePlayFabData(TMap<FString, FString>& dataToUpdate)
 {
-	PlayFab::ClientModels::FUpdateUserDataRequest request;
+	for(auto& element : dataToUpdate)
+	{
+		if(DataToUpdate.Contains(element.Key))
+		{
+			DataToUpdate[element.Key] = element.Value;
+		}
+		else
+		{
+			DataToUpdate.Add(element.Key, element.Value);
+		}
 
-	request.Data = dataToUpdate;
+		UE_LOG(LogTemp, Warning, TEXT("Requesting To Update .. %f"), timeSinceStartUp);
 
-	auto onSuccess = PlayFab::UPlayFabClientAPI::FUpdateUserDataDelegate::CreateUObject(this, &APlayfabManager::OnDataUpdate);
-	auto onError = PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &APlayfabManager::OnError);
+	}
 
-	clientAPI->UpdateUserData(request, onSuccess, onError);
 }
 
 #pragma endregion 
@@ -86,32 +112,7 @@ void APlayfabManager::OnDataUpdate(const PlayFab::ClientModels::FUpdateUserDataR
 }
 void APlayfabManager::OnDataRetrieved(const PlayFab::ClientModels::FGetUserDataResult& result) const
 {
-	UE_LOG(LogTemp, Warning, TEXT("DATA RECIEVED"));
-
-	AMyPlayerController* MyPlayer = Cast<AMyPlayerController>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-
-	if (result.Data.Contains(InventoryDataKey))
-	{
-		FString userDataString = result.Data[InventoryDataKey].Value;
-		FPlayerInventoryData userData;
-		FJsonObjectConverter::JsonObjectStringToUStruct(userDataString, &userData);
-
-		MyPlayer->playerInventoryData = userData;
-
-		for(auto element :userData.inventoryItems)
-			playerInventory->StoreItem((InventoryItemType)(element.Key), element.Value);
-
-		UE_LOG(LogTemp, Display, TEXT("Data recieved from user saved data"));
-	}
-	else 
-	{
-		TMap<FString, FString> DataToUpdate;
-		FString DataString;
-		FJsonObjectConverter::UStructToJsonObjectString(MyPlayer->playerInventoryData, DataString);
-
-		DataToUpdate.Add(InventoryDataKey, DataString);
-		UpdatePlayFabData(DataToUpdate);
-	}
+	OnUserLoggedInEvent.Broadcast(FUserDataMap(result.Data));
 }
 void APlayfabManager::OnError(const PlayFab::FPlayFabCppError& ErrorResult) const
 {

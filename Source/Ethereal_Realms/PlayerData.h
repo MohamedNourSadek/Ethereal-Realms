@@ -3,14 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
 #include "PlayerData.generated.h"
 
 /**
  * 
  */
-UCLASS()
-class ETHEREAL_REALMS_API UPlayerData : public UObject
+USTRUCT()
+struct ETHEREAL_REALMS_API FPlayerData 
 {
 	GENERATED_BODY()
 public:

@@ -19,6 +19,7 @@ public:
 	void ToggleInventoryState();
 	void ToggleCharacterState();
 	void PickItem();
+	void UpdateCharacterUIFromUserData();
 
 #pragma region Functions
 	UPROPERTY(EditAnywhere) TSubclassOf<AActor> cube;
