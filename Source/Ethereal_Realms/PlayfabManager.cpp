@@ -16,7 +16,6 @@ extern APlayfabManager* playFabManager = nullptr;
 APlayfabManager::APlayfabManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	playFabManager = this;
 }
 void APlayfabManager::BeginPlay()
 {
@@ -55,6 +54,7 @@ void APlayfabManager::UpdateDataPeriodically()
 }
 void APlayfabManager::InitializePlayfab()
 {
+	playFabManager = this;
 	GetMutableDefault<UPlayFabRuntimeSettings>()->TitleId = TEXT("6C634");
 	clientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
 }
@@ -100,7 +100,7 @@ void APlayfabManager::OnSuccess(const PlayFab::ClientModels::FLoginResult& Login
 	UE_LOG(LogTemp, Warning, TEXT("You've logged in successfully, you playfab ID %s"), *playerID);
 	
 	PlayFab::ClientModels::FGetUserDataRequest request;
-	
+
 	auto onSuccess = PlayFab::UPlayFabClientAPI::FGetUserDataDelegate::CreateUObject(this, &APlayfabManager::OnDataRetrieved);
 	auto onError = PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &APlayfabManager::OnError);
 	
@@ -112,7 +112,9 @@ void APlayfabManager::OnDataUpdate(const PlayFab::ClientModels::FUpdateUserDataR
 }
 void APlayfabManager::OnDataRetrieved(const PlayFab::ClientModels::FGetUserDataResult& result) const
 {
-	OnUserLoggedInEvent.Broadcast(FUserDataMap(result.Data));
+	UE_LOG(LogTemp, Warning, TEXT("User Data Retrieved"));
+
+	OnUserLoggedInEvent.Broadcast(FUserDataMap((result.Data)));
 }
 void APlayfabManager::OnError(const PlayFab::FPlayFabCppError& ErrorResult) const
 {

@@ -13,6 +13,8 @@
 extern UInventory* playerInventory = nullptr;
 extern APlayfabManager* playFabManager = nullptr;
 
+bool initialized = false;
+
 #pragma region Unreal Delegates
 AMyPlayerController::AMyPlayerController()
 {
@@ -21,12 +23,24 @@ AMyPlayerController::AMyPlayerController()
 void AMyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	playFabManager->OnUserLoggedInEvent.AddDynamic(this, &AMyPlayerController::OnPlayerLoggedIn);
+
+	if (playFabManager == nullptr)
+	{
+		playFabManager->OnUserLoggedInEvent.AddDynamic(this, &AMyPlayerController::OnPlayerLoggedIn);
+		initialized = true;
+	}
 }
 void AMyPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	UpdateUI();
+
+	if (initialized == false && playFabManager != nullptr)
+	{
+		playFabManager->OnUserLoggedInEvent.AddDynamic(this, &AMyPlayerController::OnPlayerLoggedIn);
+		initialized = true;
+	}
+
 }
 void AMyPlayerController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
