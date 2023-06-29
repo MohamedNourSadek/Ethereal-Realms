@@ -23,12 +23,6 @@ AMyPlayerController::AMyPlayerController()
 void AMyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (playFabManager == nullptr)
-	{
-		playFabManager->OnUserLoggedInEvent.AddDynamic(this, &AMyPlayerController::OnPlayerLoggedIn);
-		initialized = true;
-	}
 }
 void AMyPlayerController::Tick(float DeltaTime)
 {
@@ -40,7 +34,6 @@ void AMyPlayerController::Tick(float DeltaTime)
 		playFabManager->OnUserLoggedInEvent.AddDynamic(this, &AMyPlayerController::OnPlayerLoggedIn);
 		initialized = true;
 	}
-
 }
 void AMyPlayerController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
