@@ -23,6 +23,12 @@ AMyPlayerController::AMyPlayerController()
 void AMyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+	initialized = false;
+
+	if (HasAuthority())
+		UE_LOG(LogTemp, Display, TEXT("Log##: Server Spawning %s"), *GetName())
+	else
+		UE_LOG(LogTemp, Display, TEXT("Log##: Client Spawning %s"), *GetName())
 }
 void AMyPlayerController::Tick(float DeltaTime)
 {
@@ -31,7 +37,7 @@ void AMyPlayerController::Tick(float DeltaTime)
 
 	if (initialized == false && playFabManager != nullptr)
 	{
-		playFabManager->OnUserLoggedInEvent.AddDynamic(this, &AMyPlayerController::OnPlayerLoggedIn);
+		playFabManager->OnUserLoggedInEvent.AddUniqueDynamic(this, &AMyPlayerController::OnPlayerLoggedIn);
 		initialized = true;
 	}
 }
@@ -45,6 +51,14 @@ void AMyPlayerController::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("CharacterUI", IE_Pressed, this, &AMyPlayerController::CharacterUIOpenRecieved);
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &AMyPlayerController::DropInputRecieved);
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AMyPlayerController::AttackInputRecieved);
+
+	isActionsBound = true;
+
+	if (HasAuthority())
+		UE_LOG(LogTemp, Warning, TEXT("Log##: Server Bound Actions to player %s"), *GetName())
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Log##: Client Bound Actions to player %s"), *GetName())
+
 }
 #pragma endregion
 
@@ -237,6 +251,11 @@ void AMyPlayerController::OnPlayerLoggedIn(FUserDataMap userData)
 void AMyPlayerController::PickInputRecieved()
 {
 	playerInventory->PickItem();
+
+	if (HasAuthority())
+		UE_LOG(LogTemp, Display, TEXT("Log##: Server Pick Input %s"), *GetName())
+	else
+		UE_LOG(LogTemp, Display, TEXT("Log##: Client Pick %s"), *GetName())
 }
 void AMyPlayerController::StoreInputRecieved()
 {
@@ -244,9 +263,14 @@ void AMyPlayerController::StoreInputRecieved()
 }
 void AMyPlayerController::InventoryInputRecieved()
 {
+	if (HasAuthority())
+		UE_LOG(LogTemp, Display, TEXT("Log##: Server Inventory Input %s"), *GetName())
+	else
+		UE_LOG(LogTemp, Display, TEXT("Log##: Client Spawning %s"), *GetName())
+
 	playerInventory->ToggleInventoryState();
 }
-void AMyPlayerController::CharacterUIOpenRecieved()
+void AMyPlayerController::CharacterUIOpenRecieved() 
 {
 	playerInventory->ToggleCharacterState();
 }

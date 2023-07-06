@@ -29,16 +29,14 @@ void UInventory::OnStart(UCanvasPanel* dropGPanel, UCanvasPanel* pressEPanel, UC
 	SwordsManShipSlider = swordsmanshipSlider;
 	TacticsSlider = tacticsSlider;
 
-	PowerSlider->OnValueChanged.AddDynamic(this, &UInventory::OnCharacterParametersChanged);
-	SwordsManShipSlider->OnValueChanged.AddDynamic(this, &UInventory::OnCharacterParametersChanged);
-	TacticsSlider->OnValueChanged.AddDynamic(this, &UInventory::OnCharacterParametersChanged);
+	PowerSlider->OnValueChanged.AddUniqueDynamic(this, &UInventory::OnCharacterParametersChanged);
+	SwordsManShipSlider->OnValueChanged.AddUniqueDynamic(this, &UInventory::OnCharacterParametersChanged);
+	TacticsSlider->OnValueChanged.AddUniqueDynamic(this, &UInventory::OnCharacterParametersChanged);
 	
 	for (UInventoryUIItem* item : items)
 		item->OnStart();
 
-
-	
-	MyPlayer = Cast<AMyPlayerController>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	MyPlayer = GetLocalPlayer();
 }
 
 void UInventory::PickItem()
@@ -58,7 +56,7 @@ void UInventory::PickItem()
 	}
 	else
 	{
-		MyPlayer = Cast<AMyPlayerController>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		MyPlayer = GetLocalPlayer();
 		PickItem();
 	}
 }
@@ -113,7 +111,7 @@ void UInventory::ToggleInventoryState()
 	}
 	else
 	{
-		MyPlayer = Cast<AMyPlayerController>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		MyPlayer = GetLocalPlayer();
 		ToggleInventoryState();
 	}
 }
@@ -140,7 +138,7 @@ void UInventory::ToggleCharacterState()
 	}
 	else
 	{
-		MyPlayer = Cast<AMyPlayerController>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		MyPlayer = GetLocalPlayer();
 		ToggleCharacterState();
 	}
 }
@@ -241,4 +239,20 @@ void UInventory::OnCharacterParametersChanged(float value)
 	FJsonObjectConverter::UStructToJsonObjectString(MyPlayer->playerData, DataString);
 	DataToUpdate.Add(playFabManager->PlayerDataKey, DataString);
 	playFabManager->UpdatePlayFabData(DataToUpdate);
+}
+AMyPlayerController* UInventory::GetLocalPlayer()
+{
+	if (GEngine != nullptr)
+	{
+		auto player = GetWorld()->GetFirstPlayerController()->GetCharacter();
+
+		if (player != nullptr)
+			return Cast<AMyPlayerController>(player);
+		else
+			return nullptr;
+	}
+	else
+	{
+		return nullptr;
+	}
 }

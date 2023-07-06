@@ -30,6 +30,7 @@ public:
 	void StoreItem(InventoryItemType type, int itemsCount);
 	int GetSlot(InventoryItemType type);
 	UTexture2D* GetTexture(InventoryItemType type);
+	AMyPlayerController* GetLocalPlayer();
 #pragma endregion
 
 #pragma region Variables

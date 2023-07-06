@@ -47,6 +47,7 @@ public:
 	UPROPERTY (VisibleAnywhere, BlueprintReadOnly) bool RecieveInput = true;
 	UPROPERTY(EditAnywhere) APickableItem* itemInHand = nullptr;
 	UPROPERTY(EditAnywhere) FPlayerData playerData;
+	UPROPERTY(VisibleAnywhere) bool isActionsBound = false;
 #pragma endregion
 
 #pragma region Private Variables
